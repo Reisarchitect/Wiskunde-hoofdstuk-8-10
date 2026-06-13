@@ -392,6 +392,103 @@
   .test-result .grade.low { color: #ef4444; }
   .test-result .msg { font-size: 15px; color: #475569; margin-top: 6px; }
 
+  /* === VUURWERK / VIERING bij voldoende === */
+  .viering-overlay {
+    position: fixed; inset: 0;
+    background: rgba(20, 8, 40, 0.85);
+    z-index: 10000;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    overflow: hidden;
+    animation: viering-fade-in 0.4s ease;
+  }
+  @keyframes viering-fade-in { from { opacity: 0; } to { opacity: 1; } }
+
+  .viering-card {
+    background: linear-gradient(135deg, #fce7f3, #ede9fe, #dbeafe);
+    border-radius: 24px;
+    padding: 32px 28px;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(139, 92, 246, 0.6);
+    position: relative;
+    z-index: 2;
+    animation: viering-pop 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes viering-pop {
+    0% { transform: scale(0.3); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .viering-card h1 {
+    font-size: 32px;
+    color: #5b21b6;
+    margin-bottom: 8px;
+    font-weight: 800;
+  }
+  .viering-card .cijfer-display {
+    font-size: 64px;
+    font-weight: 900;
+    background: linear-gradient(135deg, #8b5cf6, #ec4899, #f59e0b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 8px 0;
+  }
+  .viering-card .tekst {
+    font-size: 17px;
+    color: #2d2238;
+    line-height: 1.5;
+    margin: 16px 0;
+    white-space: pre-line;
+  }
+  .viering-card .foto-plek {
+    margin: 16px auto;
+    max-width: 240px;
+    border-radius: 16px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fef3c7, #fce7f3);
+    padding: 24px;
+    font-size: 56px;
+  }
+  .viering-card .foto-plek img { max-width: 100%; height: auto; border-radius: 12px; display: block; }
+  .viering-card .sluit-btn {
+    background: linear-gradient(135deg, #8b5cf6, #ec4899);
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 12px;
+    font-family: inherit;
+  }
+
+  /* Vuurwerk sprankels */
+  .vuurwerk { position: absolute; pointer-events: none; z-index: 1; }
+  .vuurwerk span {
+    position: absolute; left: 0; top: 0;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    opacity: 0;
+    animation: spark 1.6s ease-out forwards;
+  }
+  @keyframes spark {
+    0% { transform: translate(0,0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--dx), var(--dy)) scale(0.2); opacity: 0; }
+  }
+  .vw1 { top: 20%; left: 15%; } .vw1 span { background: #fbbf24; box-shadow: 0 0 16px #fbbf24; }
+  .vw2 { top: 30%; right: 18%; } .vw2 span { background: #ec4899; box-shadow: 0 0 16px #ec4899; }
+  .vw3 { top: 60%; left: 22%; } .vw3 span { background: #06b6d4; box-shadow: 0 0 16px #06b6d4; }
+  .vw4 { top: 70%; right: 25%; } .vw4 span { background: #10b981; box-shadow: 0 0 16px #10b981; }
+  .vw5 { top: 15%; left: 50%; } .vw5 span { background: #8b5cf6; box-shadow: 0 0 16px #8b5cf6; }
+  .vw1 { animation: vuurwerk-pop 1.6s 0.1s infinite; }
+  .vw2 { animation: vuurwerk-pop 1.6s 0.5s infinite; }
+  .vw3 { animation: vuurwerk-pop 1.6s 0.9s infinite; }
+  .vw4 { animation: vuurwerk-pop 1.6s 1.3s infinite; }
+  .vw5 { animation: vuurwerk-pop 1.6s 0.3s infinite; }
+  @keyframes vuurwerk-pop { 0%, 90%, 100% { opacity: 1; } }
+
   .review-item {
     background: white;
     border-radius: 10px;
@@ -430,7 +527,7 @@
 </style>
 </head>
 <body>
-<div style="position:fixed;top:0;left:0;right:0;background:#10b981;color:white;padding:6px;text-align:center;font-size:12px;font-family:sans-serif;z-index:9999;">Trainer v3 - gebouwd 31 mei. Zie je deze groene balk niet? Dan is het cache. Doe Ctrl+F5.</div>
+<div style="position:fixed;top:0;left:0;right:0;background:#10b981;color:white;padding:6px;text-align:center;font-size:12px;font-family:sans-serif;z-index:9999;">Trainer v8 - vieringen per proefwerk. Zie je deze groene balk niet? Dan is het cache. Doe Ctrl+F5.</div>
 <div class="app" id="app" style="margin-top:32px;">Laden...</div>
 <noscript><div style="padding:40px;text-align:center;color:#b91c1c;background:#fee2e2;">JavaScript staat uit. Schakel JavaScript in om de trainer te gebruiken.</div></noscript>
 <div id="errorBox" style="display:none;background:#fee2e2;color:#991b1b;padding:16px;margin:16px;border-radius:8px;font-family:monospace;white-space:pre-wrap;font-size:12px;"></div>
@@ -472,1174 +569,679 @@ function buildVragen(opgaven) {
 // ============================
 const MODULES = [
   {
-    id: 1, chapter: 'H8.1', title: 'Gelijksoortige termen',
-    desc: 'Termen met dezelfde letter samenvoegen',
+    id: 11, chapter: 'H9.1', title: 'Omtrek cirkel',
+    desc: 'Omtrek = diameter × π',
     uitleg: `
       <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
         <ul>
-          <li>wat termen en gelijksoortige termen zijn</li>
-          <li>hoe je gelijksoortige termen samenvoegt tot een kortere formule</li>
+          <li>de relatie tussen diameter, straal en omtrek van een cirkel</li>
+          <li>de formule voor de omtrek van een cirkel</li>
+          <li>de omtrek berekenen als je diameter of straal kent</li>
+          <li>de diameter berekenen als je de omtrek kent</li>
         </ul>
       </div>
       <div class="theorie"><strong>Theorie</strong>
-        <p>Een <strong>term</strong> is een deel van een formule, gescheiden door + of −. Voorbeeld: in <span class="formula">4a + 7a + 3b</span> zijn 4a, 7a en 3b de drie termen.</p>
-        <p>Termen die <strong>dezelfde letter</strong> bevatten heten <strong>gelijksoortige termen</strong>. Die mag je samenvoegen door de getallen vóór de letter (de coëfficiënten) bij elkaar op te tellen of af te trekken.</p>
-        <p>Termen met <em>verschillende</em> letters of <em>losse getallen</em> mag je NIET samenvoegen.</p>
+        <p>De <strong>diameter</strong> (d) is de lijn dwars door het midden van de cirkel. De <strong>straal</strong> (r) is van het midden tot de rand. Dus: <span class="formula">diameter = 2 × straal</span>, of <span class="formula">straal = diameter : 2</span>.</p>
+        <p>Voor elke cirkel geldt: <strong>omtrek : diameter = π</strong>. En π (pi) ≈ <span class="formula">3,14</span>.</p>
+        <p>Daaruit volgt de formule die je UIT JE HOOFD moet kennen:</p>
+        <p style="text-align:center;font-size:18px;margin:8px 0;"><span class="formula">omtrek = diameter × π</span></p>
+        <p>Of, als je alleen de straal hebt: <span class="formula">omtrek = 2 × straal × π</span>.</p>
       </div>
-      <div class="stappen"><strong>Aanpak: samenvoegen</strong><ol>
-        <li>Streep gelijksoortige termen aan met dezelfde kleur (in je hoofd of op papier).</li>
-        <li>Tel de coëfficiënten van elke groep op (let op + of −).</li>
-        <li>Zet termen met andere letters of losse getallen ongewijzigd erbij.</li>
+      <div class="stappen"><strong>Aanpak: omtrek berekenen</strong><ol>
+        <li>Kijk wat je hebt: diameter of straal?</li>
+        <li>Heb je de straal, reken eerst diameter uit (r × 2).</li>
+        <li>Vermenigvuldig diameter met π (≈ 3,14).</li>
+        <li>Schrijf de eenheid erbij (cm, m, ...).</li>
+      </ol></div>
+      <div class="stappen"><strong>Aanpak: diameter berekenen uit omtrek</strong><ol>
+        <li>Gebruik dezelfde formule andersom: <span class="formula">diameter = omtrek : π</span></li>
+        <li>Deel de omtrek door 3,14.</li>
       </ol></div>
       <div class="voorbeeld"><strong>Voorbeeld 1</strong><br>
-        <span class="stap">Formule: <span class="formula">4a + 7a</span></span>
-        <span class="stap">Beide hebben letter <em>a</em>, dus gelijksoortig.</span>
-        <span class="stap">Coëfficiënten: 4 + 7 = 11.</span>
-        <span class="stap">Antwoord: <span class="formula">11a</span></span>
+        <span class="stap">Een wiel heeft diameter 70 cm.</span>
+        <span class="stap">Omtrek = 70 × π ≈ 70 × 3,14 = 219,8 cm.</span>
+        <span class="stap">In één omwenteling legt het wiel 219,8 cm af.</span>
       </div>
-      <div class="voorbeeld"><strong>Voorbeeld 2</strong><br>
-        <span class="stap">Formule: <span class="formula">5x + 3y + 2x</span></span>
-        <span class="stap">x bij x: 5x + 2x = 7x. y blijft alleen.</span>
-        <span class="stap">Antwoord: <span class="formula">7x + 3y</span></span>
+      <div class="voorbeeld"><strong>Voorbeeld 2 (uit straal)</strong><br>
+        <span class="stap">Straal van een pizza = 15 cm.</span>
+        <span class="stap">Diameter = 2 × 15 = 30 cm.</span>
+        <span class="stap">Omtrek = 30 × 3,14 = 94,2 cm.</span>
       </div>
-      <div class="voorbeeld"><strong>Voorbeeld 3 (met los getal)</strong><br>
-        <span class="stap">Formule: <span class="formula">6p + 4 + 3p</span></span>
-        <span class="stap">p bij p: 6p + 3p = 9p. De 4 blijft los.</span>
-        <span class="stap">Antwoord: <span class="formula">9p + 4</span></span>
+      <div class="voorbeeld"><strong>Voorbeeld 3 (omgekeerd)</strong><br>
+        <span class="stap">Een rond zwembad heeft een omtrek van 31,4 m.</span>
+        <span class="stap">Diameter = 31,4 : π ≈ 31,4 : 3,14 = 10 m.</span>
       </div>
-      <div class="tip"><strong>Notatie-tip:</strong> <span class="formula">1 × a</span> schrijf je als <span class="formula">a</span> (de 1 laat je weg). En <span class="formula">4 × a</span> schrijf je als <span class="formula">4a</span> (kort, geen × ertussen).</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> 5x en 3y zijn NIET gelijksoortig (verschillende letters). 5x + 3y kun je dus NIET korter schrijven dan 5x + 3y.</div>
+      <div class="tip"><strong>Onthouden:</strong> π ≈ 3,14. Of nog preciezer: 3,14159... Op je proefwerk volstaat 3,14.</div>
+      <div class="fout"><strong>Veelgemaakte fout:</strong> Straal verwarren met diameter. Bij 'straal 5' is de DIAMETER 10. Dus omtrek = 10 × π, niet 5 × π.</div>
     `,
     opgaven: [
       {
-        titel: 'Opgave 1 - De vlaggetjeslijn van Eline',
-        intro: `<p>Eline hangt een vlaggetjeslijn op voor een feest. Elk vlaggetje heeft een breedte van <span class="formula">v</span> cm en tussen twee vlaggetjes zit een stuk lijn van <span class="formula">a</span> cm.</p>
-        <div class="figuur">[ lijn — vlag — lijn — vlag — lijn — vlag — lijn — vlag — lijn — vlag — lijn ]<br>(5 vlaggetjes, 6 stukken lijn ertussen + aan de uiteinden)</div>`,
+        titel: 'Opgave 1 - De formule uit je hoofd',
+        intro: `<p>Deze formule moet je echt vlot kunnen opschrijven. Ga maar eens na of je hem kent.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 220 160" style="max-width:260px;width:100%;height:auto;">
+  <circle cx="110" cy="80" r="60" fill="#ede9fe" stroke="#7c3aed" stroke-width="2"/>
+  <line x1="50" y1="80" x2="170" y2="80" stroke="#be185d" stroke-width="2" stroke-dasharray="4,3"/>
+  <line x1="110" y1="80" x2="110" y2="20" stroke="#059669" stroke-width="2.5"/>
+  <circle cx="110" cy="80" r="3" fill="#7c3aed"/>
+  <text x="110" y="100" text-anchor="middle" font-size="12" fill="#be185d" font-weight="bold">diameter (d)</text>
+  <text x="135" y="50" font-size="12" fill="#059669" font-weight="bold">straal (r)</text>
+</svg></div>`,
         sub: [
           { label: 'a',
-            vraag: 'In de tekening hangen 5 vlaggetjes. Aan elke kant zit ook nog een stuk lijn. Hoeveel stukken lijn zijn er in totaal (de tussenstukken + de uiteinden)?',
-            antwoord: '6',
-            hint: 'Tel: lijn-vlag-lijn-vlag-...-lijn. 5 vlaggetjes → hoeveel lijntjes?',
-            uitleg: 'Bij 5 vlaggetjes met een stuk lijn aan elke kant zijn er 6 stukken lijn (4 tussen de vlaggetjes + 2 aan de uiteinden).' },
+            vraag: 'Vul de formule aan: omtrek cirkel = ... × π. Wat moet je op de puntjes invullen? (1 woord)',
+            antwoord: 'diameter', alts: ['diameter','d','Diameter','DIAMETER'],
+            hint: 'De formule gebruikt de lijn die DWARS door het midden van de cirkel gaat (van rand naar rand). Hoe heet die lijn?',
+            uitleg: 'omtrek = diameter × π. De diameter is de lijn dwars door het midden.' },
           { label: 'b',
-            vraag: 'Vul nu de juiste getallen in. Voor de totale lengte van de slinger in de tekening geldt: ___ × v + ___ × a = totale lengte. Antwoord beknopt, zonder spaties.',
-            antwoord: '5v+6a', alts: ['5v+6a','5v + 6a','6a+5v','6a + 5v','5×v+6×a'],
-            hint: '5 vlaggetjes geven 5v. 6 stukken lijn geven 6a.',
-            uitleg: '5 vlaggetjes × v cm + 6 stukken lijn × a cm. Totaal: 5v + 6a.' },
+            vraag: 'Hoeveel is π afgerond op 2 decimalen?',
+            antwoord: '3,14', alts: ['3,14','3.14'],
+            hint: 'Een wereldberoemd getal dat begint met 3 komma...',
+            uitleg: 'π ≈ 3,14 (in werkelijkheid 3,14159..., maar op school volstaat 3,14).' },
           { label: 'c',
-            vraag: 'Eline maakt nu een veel langere slinger met in totaal 36 vlaggetjes. Met een stuk lijn aan elke kant: hoeveel stukken lijn zitten er dan in totaal?',
-            antwoord: '37',
-            hint: 'Bij n vlaggetjes hoort n+1 stukken lijn (35 tussen + 2 uiteinden = 37). Of: 36 vlaggetjes hebben 35 tussenruimtes, plus de 2 uiteinden.',
-            uitleg: 'Bij 36 vlaggetjes zitten er 35 tussenruimtes + 2 uiteinden = 37 stukken lijn.' },
+            vraag: 'Een cirkel heeft straal 6 cm. Wat is de diameter? (in cm)',
+            antwoord: '12',
+            hint: 'De diameter is twee keer zo lang als de straal. De straal loopt van het midden tot de rand, de diameter dwars over de hele cirkel.',
+            uitleg: 'diameter = 2 × straal = 2 × 6 = 12 cm.' },
           { label: 'd',
-            vraag: 'Stel: de vlaggetjes zijn 8 cm breed (v = 8) en de stukken lijn zijn 12 cm (a = 12). Hoeveel cm is de hele slinger van 36 vlaggetjes lang? Gebruik je formule 36v + 37a.',
-            antwoord: '732',
-            hint: '36 × 8 + 37 × 12 = ?',
-            uitleg: '36 × 8 = 288 en 37 × 12 = 444. Samen: 288 + 444 = 732 cm.' }
+            vraag: 'Schrijf de formule in woorden: hoe bereken je de omtrek als je alleen de STRAAL kent? Vul aan: omtrek = 2 × ... × π. (1 woord)',
+            antwoord: 'straal', alts: ['straal','r','Straal','STRAAL'],
+            hint: 'Diameter = 2 × straal. Vervang "diameter" in de hoofdformule door "2 × straal".',
+            uitleg: 'omtrek = diameter × π = (2 × straal) × π = 2 × straal × π.' }
         ]
       },
       {
-        titel: 'Opgave 2 - Sneakers in dozen',
-        intro: `<p>Lina werkt in een sneakerwinkel. Op een schap staan dozen met sneakers. In elke doos zitten <span class="formula">s</span> paar sneakers.</p>
-        <p>'s Ochtends staan er 12 dozen op het schap. Tijdens de dag komen er 7 dozen bij uit het magazijn. Aan het einde van de dag zijn er 4 dozen verkocht en weggehaald.</p>`,
+        titel: 'Opgave 2 - Pizza van Lina',
+        intro: `<p>Lina bestelt een pizza. De diameter van de pizza is 30 cm. Ze wil de rand met kaas insmeren.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 140" style="max-width:240px;width:100%;height:auto;">
+  <circle cx="100" cy="70" r="55" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <line x1="45" y1="70" x2="155" y2="70" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="100" cy="70" r="2" fill="#7c3aed"/>
+  <text x="100" y="62" text-anchor="middle" font-size="11" fill="#5b21b6">diameter = 30 cm</text>
+</svg></div>`,
         sub: [
           { label: 'a',
-            vraag: 'Schrijf een formule (zonder uit te rekenen) voor het totaal aantal paren sneakers op het schap aan het einde van de dag, in termen van s. Schrijf de formule in volgorde: 12s + 7s - 4s.',
-            antwoord: '12s+7s-4s', alts: ['12s+7s-4s','12s + 7s - 4s'],
-            hint: 'Start (12s), erbij (+7s), eraf (-4s).',
-            uitleg: '12 dozen × s + 7 dozen × s − 4 dozen × s = 12s + 7s − 4s.' },
+            vraag: 'Welke formule gebruik je om de lengte van de rand uit te rekenen? Typ: omtrek of oppervlakte.',
+            antwoord: 'omtrek', alts: ['omtrek','Omtrek','OMTREK'],
+            hint: 'De RAND van de pizza is de buitenlijn rondom de cirkel. Welke grootheid is dat?',
+            uitleg: 'De rand is de buitenkant van de cirkel = de omtrek.' },
           { label: 'b',
-            vraag: 'Schrijf die formule zo kort mogelijk. Hoeveel s blijft er over?',
-            antwoord: '15s', alts: ['15s','15 s'],
-            hint: '12 + 7 − 4 = ?',
-            uitleg: '12 + 7 − 4 = 15. Antwoord: 15s.' },
+            vraag: 'Reken de omtrek uit. Gebruik π = 3,14. Schrijf je antwoord in cm (rond af op 1 decimaal).',
+            antwoord: '94,2', alts: ['94,2','94.2'],
+            hint: 'omtrek = diameter × π. Vul de diameter (30 cm) in en vermenigvuldig met 3,14.',
+            uitleg: '30 × 3,14 = 94,2 cm.' },
           { label: 'c',
-            vraag: 'In elke doos zitten 6 paar sneakers (s = 6). Hoeveel paar staan er aan het einde van de dag op het schap?',
-            antwoord: '90',
-            hint: 'Vul s = 6 in: 15 × 6 = ?',
-            uitleg: '15s met s = 6: 15 × 6 = 90 paar sneakers.' }
+            vraag: 'Lina koopt een tweede pizza met straal 20 cm. Eerst: wat is de diameter daarvan? (in cm)',
+            antwoord: '40',
+            hint: 'De diameter is twee keer de straal.',
+            uitleg: 'diameter = 2 × 20 = 40 cm.' },
+          { label: 'd',
+            vraag: 'Bereken de omtrek van de tweede pizza in cm (gebruik π = 3,14) (rond af op 1 decimaal).',
+            antwoord: '125,6', alts: ['125,6','125.6'],
+            hint: 'Gebruik de formule omtrek = diameter × π met de diameter die je net hebt berekend.',
+            uitleg: '40 × 3,14 = 125,6 cm.' }
         ]
       },
       {
-        titel: 'Opgave 3 - Het paardenrantsoen',
-        intro: `<p>Op de manege krijgt elk paard 6 kilo voer (<span class="formula">p</span> = 1 portie), 4 extra kilo hooi (los, geen letter) en 3 extra porties krachtvoer per dag.</p>
-        <p>De formule voor de hoeveelheid kilo's per paard ziet er zo uit: <span class="formula">6p + 4 + 3p</span>.</p>`,
+        titel: 'Opgave 3 - Het wiel van Floor',
+        intro: `<p>Floor heeft een fiets. Het achterwiel heeft een diameter van 50 cm. Ze fietst naar school.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 140" style="max-width:240px;width:100%;height:auto;">
+  <circle cx="100" cy="70" r="55" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <line x1="45" y1="70" x2="155" y2="70" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="100" cy="70" r="2" fill="#7c3aed"/>
+  <text x="100" y="62" text-anchor="middle" font-size="11" fill="#5b21b6">diameter = 50 cm</text>
+</svg></div>`,
         sub: [
           { label: 'a',
-            vraag: 'Welke twee termen in 6p + 4 + 3p zijn gelijksoortig (mogen samen)? Schrijf de twee termen op, gescheiden door " en ".',
-            antwoord: '6p en 3p', alts: ['6p en 3p','3p en 6p','6p,3p','3p,6p','6p+3p','3p+6p'],
-            hint: 'Termen met dezelfde letter.',
-            uitleg: '6p en 3p hebben allebei een p, die zijn gelijksoortig. De 4 staat los.' },
+            vraag: 'Hoeveel cm legt het wiel af in één hele omwenteling? Gebruik π = 3,14.',
+            antwoord: '157',
+            hint: 'Eén omwenteling = één hele omtrek van het wiel. Gebruik omtrek = diameter × π.',
+            uitleg: '50 × 3,14 = 157 cm per omwenteling.' },
           { label: 'b',
-            vraag: 'Schrijf de formule 6p + 4 + 3p zo kort mogelijk. (antwoord beknopt, geen spaties)',
-            antwoord: '9p+4', alts: ['9p+4','9p + 4','4+9p','4 + 9p'],
-            hint: '6p + 3p = ... en de 4 blijft.',
-            uitleg: '6p + 3p = 9p. De 4 staat alleen, dus 9p + 4.' },
+            vraag: 'De afstand naar school is 314 meter. Hoe vaak draait het wiel in totaal rond? (afronden op heel getal)',
+            antwoord: '200',
+            hint: 'Reken eerst 314 m om naar cm (1 m = 100 cm). Deel dan door het antwoord van vraag a.',
+            uitleg: '314 m = 31.400 cm. 31.400 : 157 = 200 omwentelingen.' },
           { label: 'c',
-            vraag: 'Eén portie weegt 2 kilo (p = 2). Hoeveel kilo voer krijgt een paard in totaal per dag? Gebruik 9p + 4.',
-            antwoord: '22',
-            hint: '9 × 2 + 4 = ?',
-            uitleg: '9 × 2 = 18, plus 4 = 22 kilo per paard.' }
+            vraag: 'Floor zet een speciaal wiel met OMTREK 200 cm op haar fiets. Wat is dan de diameter van het wiel? (afronden op 2 decimalen)',
+            antwoord: '63,69', alts: ['63,69','63.69'],
+            hint: 'De formule kun je omdraaien: diameter = omtrek : π. Deel 200 door 3,14.',
+            uitleg: 'diameter = 200 : 3,14 ≈ 63,69 cm.' }
         ]
       }
     ]
   },
   {
-    id: 2, chapter: 'H8.2', title: 'De balans',
-    desc: 'Vergelijkingen begrijpen als een weegschaal',
+    id: 12, chapter: 'H9.2', title: 'Oppervlakte cirkel',
+    desc: 'Oppervlakte = straal × straal × π',
     uitleg: `
       <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
         <ul>
-          <li>hoe je een verhaal vertaalt naar een vergelijking</li>
-          <li>hoe je een eenvoudige vergelijking oplost met de balans-methode</li>
+          <li>de formule voor de oppervlakte van een cirkel</li>
+          <li>de oppervlakte berekenen als je de straal of diameter kent</li>
+          <li>de straal berekenen als je de oppervlakte kent</li>
         </ul>
       </div>
       <div class="theorie"><strong>Theorie</strong>
-        <p>Een <strong>vergelijking</strong> bestaat uit een linkerkant en een rechterkant, gescheiden door een = teken. Beide kanten zijn gelijk aan elkaar, net als een balans (weegschaal) in evenwicht.</p>
-        <p>Een <strong>letter</strong> (zoals <em>x</em>, <em>a</em>) is een onbekende, vergelijkbaar met een zakje waarvan je niet weet wat erin zit. Een <strong>getal</strong> zonder letter is een los gewicht.</p>
-        <p>De gouden regel: <strong>wat je links doet, doe je óók rechts.</strong> Anders is de balans niet meer in evenwicht.</p>
+        <p>Bij H9.1 ging het om de LIJN rondom (omtrek). Nu gaat het om de oppervlakte ÍN de cirkel.</p>
+        <p>De formule die je UIT JE HOOFD moet kennen:</p>
+        <p style="text-align:center;font-size:18px;margin:8px 0;"><span class="formula">oppervlakte = straal × straal × π</span></p>
+        <p>Korter geschreven: <span class="formula">A = r² × π</span> (waar A = oppervlakte en r = straal).</p>
+        <p>Heb je alleen de diameter? Reken eerst de straal uit (straal = diameter : 2), en vul die dan in.</p>
       </div>
-      <div class="stappen"><strong>Aanpak: oplossen met de balans</strong><ol>
-        <li>Haal aan beide kanten dezelfde losse getallen weg (+ of − toepassen).</li>
-        <li>Je houdt iets over in de vorm <span class="formula">a × letter = getal</span>.</li>
-        <li>Deel beide kanten door het getal vóór de letter.</li>
-        <li>Controleer: vul je antwoord in in de oorspronkelijke vergelijking.</li>
+      <div class="stappen"><strong>Aanpak: oppervlakte berekenen</strong><ol>
+        <li>Kijk wat je hebt: straal of diameter?</li>
+        <li>Heb je de diameter, deel door 2 om de straal te krijgen.</li>
+        <li>Reken: straal × straal × π.</li>
+        <li>Schrijf de eenheid erbij — dat is altijd het KWADRAAT van de lengtemaat (cm², m², ...).</li>
       </ol></div>
       <div class="voorbeeld"><strong>Voorbeeld 1</strong><br>
-        <span class="stap">Vergelijking: <span class="formula">3a + 4 = 19</span></span>
-        <span class="stap">Stap 1: −4 aan beide kanten → <span class="formula">3a = 15</span></span>
-        <span class="stap">Stap 2: :3 aan beide kanten → <span class="formula">a = 5</span></span>
-        <span class="stap">Check: 3 × 5 + 4 = 19. ✅</span>
+        <span class="stap">Een cirkel met straal 5 cm.</span>
+        <span class="stap">Oppervlakte = 5 × 5 × π = 25 × 3,14 = 78,5 cm².</span>
       </div>
-      <div class="voorbeeld"><strong>Voorbeeld 2 (uit een verhaaltje)</strong><br>
-        <span class="stap">Een zwembad-pas kost <em>x</em> euro per maand + 10 euro borg. Voor 4 maanden + borg betaal je 50 euro.</span>
-        <span class="stap">Vergelijking: <span class="formula">4x + 10 = 50</span></span>
-        <span class="stap">−10: <span class="formula">4x = 40</span></span>
-        <span class="stap">:4: <span class="formula">x = 10</span>. Eén maand kost 10 euro.</span>
+      <div class="voorbeeld"><strong>Voorbeeld 2 (uit diameter)</strong><br>
+        <span class="stap">Cirkel met diameter 12 cm.</span>
+        <span class="stap">Straal = 12 : 2 = 6 cm.</span>
+        <span class="stap">Oppervlakte = 6 × 6 × π = 36 × 3,14 = 113,04 cm².</span>
       </div>
-      <div class="tip"><strong>Volgorde-tip:</strong> Eerst plus/min wegwerken (de losse getallen), dán pas delen.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> Iets vergeten te doen aan ÉÉN kant. Bijvoorbeeld 3a + 4 = 19 → 3a = 19 (vergeten de 4 ook van 19 af te halen). Altijd ÁLLEBEI de kanten gelijk behandelen.</div>
+      <div class="tip"><strong>Volgorde:</strong> EERST straal × straal (kwadrateren), DAN keer π. Niet andersom — dat geeft hetzelfde antwoord, maar veel mensen rekenen zich dan vast.</div>
+      <div class="fout"><strong>Veelgemaakte fout:</strong> Diameter invullen ipv straal. Bij oppervlakte gaat ALTIJD straal × straal × π. Heb je alleen diameter? Halveren eerst!</div>
+      <div class="fout"><strong>Veelgemaakte fout 2:</strong> 'straal × 2 × π' opschrijven (dat is omtrek!). De oppervlakte heeft straal × STRAAL — twee keer dezelfde, niet keer 2.</div>
     `,
     opgaven: [
       {
-        titel: 'Opgave 1 - Britt en Ellen op de wip',
-        intro: `<p>Britt en Ellen zitten op een wip. De wip is in evenwicht. Britt weegt <span class="formula">b</span> kilo en heeft een rugzak van 8 kilo op haar rug. Ellen weegt 38 kilo (zonder rugzak).</p>
-        <div class="figuur">[ Britt + rugzak (b + 8) ]  ≡  [ Ellen (38) ]</div>`,
+        titel: 'Opgave 1 - De formule uit je hoofd',
+        intro: `<p>Tweede belangrijke cirkel-formule. Ook deze moet je vlot kunnen opschrijven.</p>`,
         sub: [
           { label: 'a',
-            vraag: 'Schrijf de vergelijking op die hoort bij deze evenwichts-wip. (antwoord beknopt, geen spaties)',
-            antwoord: 'b+8=38', alts: ['b+8=38','b + 8 = 38','38=b+8'],
-            hint: 'Links Britt + rugzak, rechts Ellen.',
-            uitleg: 'Links: b + 8. Rechts: 38. In evenwicht dus b + 8 = 38.' },
+            vraag: 'Vul aan: oppervlakte cirkel = ... × ... × π. Welke grootheid moet je twee keer met zichzelf vermenigvuldigen? (1 woord)',
+            antwoord: 'straal', alts: ['straal','r','Straal','STRAAL'],
+            hint: 'Niet de diameter. Het is de afstand van het midden naar de rand.',
+            uitleg: 'oppervlakte = straal × straal × π.' },
           { label: 'b',
-            vraag: 'Los de vergelijking op. Wat weegt Britt (zonder rugzak)? b = ?',
+            vraag: 'Een cirkel heeft diameter 8. Wat is de straal?',
+            antwoord: '4',
+            hint: 'De straal is de helft van de diameter.',
+            uitleg: 'straal = 8 : 2 = 4.' },
+          { label: 'c',
+            vraag: 'Bij die diameter (8) en straal (4): welke berekening doe je voor de oppervlakte? Vul aan: oppervlakte = 4 × 4 × ... . (1 symbool of getal)',
+            antwoord: 'π', alts: ['π','pi','3,14','3.14'],
+            hint: 'Het derde deel van de formule oppervlakte = straal × straal × ?',
+            uitleg: 'Vermenigvuldig met π. Dus 4 × 4 × π ≈ 4 × 4 × 3,14.' },
+          { label: 'd',
+            vraag: 'Vergelijking met de andere formule: omtrek = ... × π. Vul aan met 1 woord.',
+            antwoord: 'diameter', alts: ['diameter','d','Diameter'],
+            hint: 'Omtrek gebruikt de LANGE lijn dwars door het midden, niet de halve.',
+            uitleg: 'omtrek = diameter × π. Belangrijk verschil: omtrek gebruikt diameter, oppervlakte gebruikt straal × straal.' }
+        ]
+      },
+      {
+        titel: 'Opgave 2 - Pannenkoek van Daan',
+        intro: `<p>Daan bakt pannenkoeken in een pan. Eén pannenkoek heeft een straal van 10 cm.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 140" style="max-width:240px;width:100%;height:auto;">
+  <circle cx="100" cy="70" r="55" fill="#fce7f3" stroke="#be185d" stroke-width="2"/>
+  <line x1="100" y1="70" x2="155" y2="70" stroke="#7c3aed" stroke-width="2"/>
+  <circle cx="100" cy="70" r="2" fill="#7c3aed"/>
+  <text x="128" y="62" text-anchor="middle" font-size="11" fill="#5b21b6">straal = 10 cm</text>
+</svg></div>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Welke formule heb je nodig: omtrek of oppervlakte? (om te weten hoeveel pannenkoek er op je bord ligt)',
+            antwoord: 'oppervlakte', alts: ['oppervlakte','Oppervlakte','OPPERVLAKTE'],
+            hint: '"Hoeveel pannenkoek" = hoeveel ruimte op het bord = oppervlakte. De omtrek zou alleen de buitenrand zijn.',
+            uitleg: 'Oppervlakte: hoeveel ruimte de pannenkoek inneemt op het bord.' },
+          { label: 'b',
+            vraag: 'Bereken de oppervlakte van één pannenkoek. Gebruik π = 3,14. Antwoord in cm².',
+            antwoord: '314',
+            hint: 'oppervlakte = straal × straal × π. Vul straal = 10 in. Eerst 10 × 10, dan keer 3,14.',
+            uitleg: '10 × 10 × 3,14 = 100 × 3,14 = 314 cm².' },
+          { label: 'c',
+            vraag: 'Daan maakt een tweede pannenkoek, maar nu met diameter 18 cm. Wat is de straal? (in cm)',
+            antwoord: '9',
+            hint: 'Straal = diameter : 2.',
+            uitleg: 'straal = 18 : 2 = 9 cm.' },
+          { label: 'd',
+            vraag: 'Bereken de oppervlakte van deze tweede pannenkoek in cm² (π = 3,14) (rond af op 2 decimalen).',
+            antwoord: '254,34', alts: ['254,34','254.34'],
+            hint: 'Gebruik straal × straal × π. Eerst 9 × 9 = 81, dan keer 3,14.',
+            uitleg: '9 × 9 × 3,14 = 81 × 3,14 = 254,34 cm².' }
+        ]
+      },
+      {
+        titel: 'Opgave 3 - De vijver in de tuin',
+        intro: `<p>In de tuin ligt een ronde vijver. De diameter is 4 meter. Vader wil een net over de vijver leggen om de visjes te beschermen.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 140" style="max-width:240px;width:100%;height:auto;">
+  <circle cx="100" cy="70" r="55" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <line x1="45" y1="70" x2="155" y2="70" stroke="#7c3aed" stroke-width="2" stroke-dasharray="4,3"/>
+  <circle cx="100" cy="70" r="2" fill="#7c3aed"/>
+  <text x="100" y="62" text-anchor="middle" font-size="11" fill="#5b21b6">diameter = 4 m</text>
+</svg></div>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Wat is de straal van de vijver? (in meter)',
+            antwoord: '2',
+            hint: 'Straal = diameter : 2.',
+            uitleg: 'straal = 4 : 2 = 2 m.' },
+          { label: 'b',
+            vraag: 'Welke formule heb je nodig om uit te rekenen hoeveel m² net je nodig hebt?',
+            antwoord: 'oppervlakte', alts: ['oppervlakte','Oppervlakte','straal × straal × π','r × r × π','r²×π'],
+            hint: 'Het net DEKT de hele vijver af, dus je hebt de ruimte erop nodig.',
+            uitleg: 'Oppervlakte van de cirkel, want het net dekt de hele bovenkant af.' },
+          { label: 'c',
+            vraag: 'Bereken het aantal m² net dat nodig is (π = 3,14) (rond af op 2 decimalen).',
+            antwoord: '12,56', alts: ['12,56','12.56'],
+            hint: 'oppervlakte = straal × straal × π. Vul straal = 2 in.',
+            uitleg: '2 × 2 × 3,14 = 4 × 3,14 = 12,56 m².' },
+          { label: 'd',
+            vraag: 'Een nieuwe ronde tafel in de tuin heeft een oppervlakte van 3,14 m². Wat is de straal? (in meter)',
+            antwoord: '1',
+            hint: 'oppervlakte = straal × straal × π. Vul de oppervlakte in en zoek welke straal werkt. Tip: 1 × 1 × π = π ≈ 3,14.',
+            uitleg: '1 × 1 × 3,14 = 3,14. Dus straal = 1 m.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 13, chapter: 'H9.3', title: 'Inhoud cilinder',
+    desc: 'Inhoud = oppervlakte bodem × hoogte',
+    uitleg: `
+      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
+        <ul>
+          <li>wat een cilinder is</li>
+          <li>de formule voor de inhoud (volume) van een cilinder</li>
+          <li>rekenen met eenheden (cm³, dm³, mL, L)</li>
+        </ul>
+      </div>
+      <div class="theorie"><strong>Theorie</strong>
+        <p>Een <strong>cilinder</strong> is een vorm met twee gelijke ronde bodems en een rechte zijwand. Denk aan een blikje, een beker, of een vat.</p>
+        <p>De formule:</p>
+        <p style="text-align:center;font-size:18px;margin:8px 0;"><span class="formula">inhoud = oppervlakte bodem × hoogte</span></p>
+        <p>De bodem is een cirkel, dus: <span class="formula">inhoud = straal × straal × π × hoogte</span>.</p>
+        <p><strong>Eenheden:</strong> inhoud is een 3D-maat. Eenheden: cm³, dm³, m³. Vuistregel: <span class="formula">1 dm³ = 1 liter</span> en <span class="formula">1 cm³ = 1 mL</span>.</p>
+      </div>
+      <div class="stappen"><strong>Aanpak: inhoud cilinder berekenen</strong><ol>
+        <li>Bepaal de straal van de bodem (eventueel: diameter : 2).</li>
+        <li>Bereken de oppervlakte van de bodem: straal × straal × π.</li>
+        <li>Vermenigvuldig met de hoogte van de cilinder.</li>
+        <li>Eenheid: lengtemaat tot de derde macht (bv. cm³).</li>
+      </ol></div>
+      <div class="voorbeeld"><strong>Voorbeeld 1</strong><br>
+        <span class="stap">Een cola-blikje heeft straal 3 cm en hoogte 12 cm.</span>
+        <span class="stap">Oppervlakte bodem = 3 × 3 × 3,14 = 28,26 cm².</span>
+        <span class="stap">Inhoud = 28,26 × 12 = 339,12 cm³ ≈ 339 mL.</span>
+      </div>
+      <div class="voorbeeld"><strong>Voorbeeld 2 (uit diameter)</strong><br>
+        <span class="stap">Een vat heeft diameter 40 cm en hoogte 1 meter (= 100 cm).</span>
+        <span class="stap">Straal = 40 : 2 = 20 cm.</span>
+        <span class="stap">Oppervlakte bodem = 20 × 20 × 3,14 = 1256 cm².</span>
+        <span class="stap">Inhoud = 1256 × 100 = 125.600 cm³ = 125,6 L.</span>
+      </div>
+      <div class="tip"><strong>Slim omrekenen:</strong> 1 L = 1 dm³ = 1000 cm³. Werk vaak met dm voor "huishoudelijke" inhoud — dan komt er direct liter uit.</div>
+      <div class="fout"><strong>Veelgemaakte fout:</strong> Vergeten te kwadrateren (straal × straal), of de hoogte vergeten. Schrijf alle 3 de delen apart op: straal × straal × π × hoogte.</div>
+    `,
+    opgaven: [
+      {
+        titel: 'Opgave 1 - De formule + eenheden',
+        intro: `<p>Eerst de formule en de eenheden vast onder de knie krijgen.</p>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Vul aan: inhoud cilinder = ... × hoogte. Wat moet er op de puntjes? (gebruik "oppervlakte bodem" of korter)',
+            antwoord: 'oppervlakte bodem', alts: ['oppervlakte bodem','oppervlaktebodem','bodem oppervlakte','oppervlakte','straal × straal × π','r × r × π','r²×π'],
+            hint: 'Je hebt twee dingen nodig: hoe groot is de onderkant, en hoe hoog is het ding.',
+            uitleg: 'inhoud = oppervlakte bodem × hoogte. De bodem is een cirkel, dus die bereken je met straal × straal × π.' },
+          { label: 'b',
+            vraag: 'Hoeveel cm³ zit er in 1 liter?',
+            antwoord: '1000',
+            hint: '1 L = 1 dm³. En 1 dm = 10 cm, dus 1 dm³ = 10 × 10 × 10 cm³.',
+            uitleg: '1 L = 1 dm³ = 1000 cm³.' },
+          { label: 'c',
+            vraag: 'Hoeveel mL is 1 cm³?',
+            antwoord: '1',
+            hint: 'Een handige gelijkheid die je vaak zult gebruiken.',
+            uitleg: '1 cm³ = 1 mL. Maakt rekenen met inhoud van flesjes en blikjes makkelijk.' },
+          { label: 'd',
+            vraag: 'Een cilinder heeft oppervlakte bodem 50 cm² en hoogte 10 cm. Wat is de inhoud in cm³?',
+            antwoord: '500',
+            hint: 'Vermenigvuldig de twee getallen.',
+            uitleg: '50 × 10 = 500 cm³.' }
+        ]
+      },
+      {
+        titel: 'Opgave 2 - Het cola-blikje',
+        intro: `<p>Een cola-blikje heeft een straal van 3 cm en is 12 cm hoog.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 180" style="max-width:200px;width:100%;height:auto;">
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 50 30 L 50 150 A 50 15 0 0 0 150 150 L 150 30" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="170" y1="30" x2="170" y2="150" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="178" y="95" font-size="11" fill="#5b21b6">h = 12 cm</text>
+  <line x1="50" y1="170" x2="150" y2="170" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="100" y="178" text-anchor="middle" font-size="11" fill="#5b21b6">d = 6 cm</text>
+</svg></div>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Bereken eerst de oppervlakte van de bodem. (π = 3,14, in cm²) (rond af op 2 decimalen)',
+            antwoord: '28,26', alts: ['28,26','28.26'],
+            hint: 'De bodem is een cirkel met straal 3. Gebruik straal × straal × π.',
+            uitleg: '3 × 3 × 3,14 = 9 × 3,14 = 28,26 cm².' },
+          { label: 'b',
+            vraag: 'Bereken nu de inhoud van het blikje in cm³ (rond af op 2 decimalen).',
+            antwoord: '339,12', alts: ['339,12','339.12'],
+            hint: 'Vermenigvuldig de oppervlakte van de bodem (vraag a) met de hoogte.',
+            uitleg: '28,26 × 12 = 339,12 cm³.' },
+          { label: 'c',
+            vraag: 'Hoeveel mL is dat? (rond af op een heel getal)',
+            antwoord: '339',
+            hint: '1 cm³ = 1 mL, dus de getallen zijn gelijk.',
+            uitleg: '339,12 cm³ = 339,12 mL ≈ 339 mL.' },
+          { label: 'd',
+            vraag: 'Een groter blikje heeft dezelfde straal maar is 20 cm hoog. Wat is de inhoud daarvan in cm³ (rond af op 1 decimaal)?',
+            antwoord: '565,2', alts: ['565,2','565.2'],
+            hint: 'Oppervlakte bodem blijft hetzelfde (28,26 cm²). Vermenigvuldig met de NIEUWE hoogte.',
+            uitleg: '28,26 × 20 = 565,2 cm³.' }
+        ]
+      },
+      {
+        titel: 'Opgave 3 - Het regenwatervat',
+        intro: `<p>In de tuin staat een rond regenwatervat met diameter 60 cm en hoogte 80 cm.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 180" style="max-width:200px;width:100%;height:auto;">
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 50 30 L 50 150 A 50 15 0 0 0 150 150 L 150 30" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="170" y1="30" x2="170" y2="150" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="178" y="95" font-size="11" fill="#5b21b6">h = 80 cm</text>
+  <line x1="50" y1="170" x2="150" y2="170" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="100" y="178" text-anchor="middle" font-size="11" fill="#5b21b6">d = 60 cm</text>
+</svg></div>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Wat is de straal van de bodem? (in cm)',
             antwoord: '30',
-            hint: 'Haal de 8 aan beide kanten weg.',
-            uitleg: 'b + 8 = 38 → b = 38 − 8 = 30. Britt weegt 30 kilo.' },
-          { label: 'c',
-            vraag: 'Britt zet 2 zakken zand van 4 kilo elk extra in haar rugzak. Wat gebeurt er met de wip? Typ "links zakt" of "rechts zakt" of "blijft".',
-            antwoord: 'links zakt', alts: ['links zakt','linkszakt','links','links gaat omlaag','links daalt'],
-            hint: 'Links wordt zwaarder.',
-            uitleg: 'Links komt er 8 kilo bij, rechts blijft 38. Links zakt.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Het hondenpension',
-        intro: `<p>Een hondenpension rekent <span class="formula">x</span> euro per dag. Voor 5 dagen verblijf + 3 euro borg betaal je in totaal 18 euro.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Schrijf de vergelijking op die hoort bij dit verhaal. (antwoord beknopt, geen spaties)',
-            antwoord: '5x+3=18', alts: ['5x+3=18','5x + 3 = 18'],
-            hint: '5 dagen × prijs + borg = totaal.',
-            uitleg: '5 dagen × x + 3 borg = 18 → 5x + 3 = 18.' },
+            hint: 'Straal = diameter : 2.',
+            uitleg: 'straal = 60 : 2 = 30 cm.' },
           { label: 'b',
-            vraag: 'Stap 1: haal de 3 (borg) aan beide kanten weg. Wat krijg je dan? (antwoord beknopt, geen spaties)',
-            antwoord: '5x=15', alts: ['5x=15','5x = 15'],
-            hint: '5x + 3 − 3 = 18 − 3.',
-            uitleg: '5x + 3 = 18, −3 aan beide kanten: 5x = 15.' },
+            vraag: 'Bereken de oppervlakte van de bodem in cm² (π = 3,14).',
+            antwoord: '2826',
+            hint: 'straal × straal × π. Eerst 30 × 30 = 900, dan keer 3,14.',
+            uitleg: '30 × 30 × 3,14 = 900 × 3,14 = 2826 cm².' },
           { label: 'c',
-            vraag: 'Los nu op. Hoeveel euro kost één dag (x)?',
-            antwoord: '3',
-            hint: 'Deel beide kanten door 5.',
-            uitleg: '5x = 15, dus x = 15 : 5 = 3. Eén dag kost 3 euro.' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - TikTok-pakket',
-        intro: `<p>In een TikTok-promotiepakket zitten <span class="formula">a</span> video-credits. Lina koopt 3 van zulke pakketten en krijgt nog 7 losse credits gratis erbij. In totaal heeft ze nu 25 credits.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Schrijf de vergelijking. (antwoord beknopt, geen spaties)',
-            antwoord: '3a+7=25', alts: ['3a+7=25','3a + 7 = 25'],
-            hint: '3 pakketten × a + 7 losse = 25.',
-            uitleg: '3a + 7 = 25.' },
-          { label: 'b',
-            vraag: 'Los op. Hoeveel credits zitten er in één pakket?',
-            antwoord: '6',
-            hint: '-7, dan :3.',
-            uitleg: '3a + 7 = 25 → 3a = 18 → a = 6.' },
-          { label: 'c',
-            vraag: 'Controleer: vul a = 6 in in de oorspronkelijke vergelijking 3a + 7. Krijg je 25?',
-            antwoord: 'ja', alts: ['ja','Ja','klopt','yes','j'],
-            hint: '3 × 6 + 7 = ?',
-            uitleg: '3 × 6 + 7 = 18 + 7 = 25. Klopt!' }
+            vraag: 'Bereken de inhoud van het vat in cm³.',
+            antwoord: '226080',
+            hint: 'Oppervlakte bodem × hoogte.',
+            uitleg: '2826 × 80 = 226.080 cm³.' },
+          { label: 'd',
+            vraag: 'Hoeveel liter is dat? (afronden op heel getal). Tip: 1000 cm³ = 1 L.',
+            antwoord: '226',
+            hint: 'Deel het aantal cm³ door 1000 om liters te krijgen.',
+            uitleg: '226.080 cm³ : 1000 = 226,08 L ≈ 226 L.' }
         ]
       }
     ]
   },
   {
-    id: 3, chapter: 'H8.3', title: 'Letters aan beide kanten',
-    desc: 'Zakjes wegstrepen, dan knikkers',
+    id: 14, chapter: 'H9.4', title: 'Oppervlakte cilinder',
+    desc: 'Mantel + 2 cirkels',
     uitleg: `
       <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
         <ul>
-          <li>hoe je vergelijkingen oplost waar links én rechts een letter staat</li>
-          <li>welke volgorde van stappen je het best gebruikt</li>
+          <li>de cilinder uit elkaar denken: mantel + 2 cirkels</li>
+          <li>de mantel berekenen (een rechthoek!)</li>
+          <li>de totale oppervlakte van een cilinder berekenen</li>
         </ul>
       </div>
       <div class="theorie"><strong>Theorie</strong>
-        <p>Tot nu toe stond de letter alleen aan de linkerkant. Soms staan er <strong>letters aan beide kanten</strong> van het =-teken. Bijvoorbeeld: <span class="formula">4a + 6 = 2a + 12</span>.</p>
-        <p>De truc: eerst zorgen dat de letter <strong>maar aan één kant</strong> staat. Dat doe je door aan beide kanten een hoeveelheid letters weg te halen (bij voorkeur de kleinste, dan blijf je positief denken).</p>
-      </div>
-      <div class="stappen"><strong>Aanpak: stap voor stap</strong><ol>
-        <li>Zoek de kleinste hoeveelheid letters. Haal die aan beide kanten weg.</li>
-        <li>Haal de losse getallen aan de letterkant weg (+ of − doen).</li>
-        <li>Deel beide kanten door het getal vóór de letter.</li>
-        <li>Controleer door je antwoord in te vullen in de oorspronkelijke vergelijking.</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeeld</strong><br>
-        <span class="stap">Vergelijking: <span class="formula">4a + 6 = 2a + 12</span></span>
-        <span class="stap">Stap 1: kleinste letter is 2a. −2a aan beide kanten → <span class="formula">2a + 6 = 12</span></span>
-        <span class="stap">Stap 2: −6 aan beide kanten → <span class="formula">2a = 6</span></span>
-        <span class="stap">Stap 3: :2 aan beide kanten → <span class="formula">a = 3</span></span>
-        <span class="stap">Check: links 4×3+6 = 18, rechts 2×3+12 = 18. ✅</span>
-      </div>
-      <div class="tip"><strong>Slimme keuze:</strong> Haal altijd de <em>kleinste</em> letter weg. Bij 7x = 3x + 8 dus −3x, niet −7x. Dan houd je positieve getallen over.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> 5a − 2a = 3 (vergeten dat je het ECHTE aantal hebt: 5a − 2a = 3a, niet 3). Als je letters samenneemt, neemt het aantal LETTERS af, niet alleen het getal.</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Balans met knikkers in zakjes',
-        intro: `<p>Op een balans staan zakjes (met evenveel knikkers per zakje, noem dat aantal <span class="formula">k</span>) en losse knikkers. De balans is in evenwicht:</p>
-        <div class="figuur">Links: 4 zakjes + 6 losse knikkers<br>Rechts: 2 zakjes + 12 losse knikkers</div>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Schrijf de vergelijking op. (antwoord beknopt, geen spaties)',
-            antwoord: '4k+6=2k+12', alts: ['4k+6=2k+12','4k + 6 = 2k + 12'],
-            hint: 'Links = Rechts.',
-            uitleg: '4 zakjes + 6 losse = 2 zakjes + 12 losse → 4k + 6 = 2k + 12.' },
-          { label: 'b',
-            vraag: 'Stap 1: haal aan beide kanten 2 zakjes weg. Welke vergelijking blijft over? (antwoord beknopt, geen spaties)',
-            antwoord: '2k+6=12', alts: ['2k+6=12','2k + 6 = 12'],
-            hint: '4k − 2k = 2k. Rechts blijft 12.',
-            uitleg: '4k − 2k = 2k. Rechts: 2k + 12 − 2k = 12. Dus 2k + 6 = 12.' },
-          { label: 'c',
-            vraag: 'Stap 2: haal nu de 6 losse knikkers weg. Wat staat er nu? (antwoord beknopt, geen spaties)',
-            antwoord: '2k=6', alts: ['2k=6','2k = 6'],
-            hint: '-6 aan beide kanten.',
-            uitleg: '2k + 6 − 6 = 12 − 6 → 2k = 6.' },
-          { label: 'd',
-            vraag: 'Los op. Hoeveel knikkers zitten er in één zakje? k = ?',
-            antwoord: '3',
-            hint: 'Deel door 2.',
-            uitleg: '2k = 6 → k = 3.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Twee sneakerwebshops',
-        intro: `<p>Webshop A vraagt voor <span class="formula">p</span> paar sneakers: <span class="formula">3p + 8</span> euro (incl. 8 euro verzending). Webshop B vraagt: <span class="formula">p + 14</span> euro (incl. 14 euro verzending).</p>
-        <p>Bij hoeveel paar sneakers ben je bij beide webshops even duur uit?</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Stel de vergelijking gelijk: A = B. (antwoord beknopt, geen spaties)',
-            antwoord: '3p+8=p+14', alts: ['3p+8=p+14','3p + 8 = p + 14'],
-            hint: 'Stel de twee formules aan elkaar gelijk.',
-            uitleg: 'Even duur betekent: 3p + 8 = p + 14.' },
-          { label: 'b',
-            vraag: 'Stap 1: haal aan beide kanten p weg. Wat krijg je? (antwoord beknopt, geen spaties)',
-            antwoord: '2p+8=14', alts: ['2p+8=14','2p + 8 = 14'],
-            hint: '3p − p = 2p.',
-            uitleg: '3p + 8 − p = p + 14 − p → 2p + 8 = 14.' },
-          { label: 'c',
-            vraag: 'Los nu op. Bij hoeveel paar sneakers (p) zijn ze even duur?',
-            antwoord: '3',
-            hint: '-8, dan :2.',
-            uitleg: '2p + 8 = 14 → 2p = 6 → p = 3 paar.' },
-          { label: 'd',
-            vraag: 'Wat betaal je dan? Vul p = 3 in bij webshop A (3p + 8).',
-            antwoord: '17',
-            hint: '3 × 3 + 8.',
-            uitleg: '3 × 3 + 8 = 17 euro. (Check B: 3 + 14 = 17. Klopt.)' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Hondenkennels',
-        intro: `<p>Twee hondenkennels rekenen voor <span class="formula">k</span> dagen oppassen:<br>
-        Kennel 1: <span class="formula">7k + 2</span> euro<br>
-        Kennel 2: <span class="formula">4k + 17</span> euro</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bij hoeveel dagen k zijn beide kennels even duur? Stel de vergelijking op. (antwoord beknopt, geen spaties)',
-            antwoord: '7k+2=4k+17', alts: ['7k+2=4k+17','7k + 2 = 4k + 17'],
-            hint: 'Kennel 1 = Kennel 2.',
-            uitleg: '7k + 2 = 4k + 17.' },
-          { label: 'b',
-            vraag: 'Los op. k = ?',
-            antwoord: '5',
-            hint: '-4k, dan -2, dan :3.',
-            uitleg: '7k + 2 = 4k + 17 → 3k + 2 = 17 → 3k = 15 → k = 5.' },
-          { label: 'c',
-            vraag: 'Bij minder dan 5 dagen: welke kennel is goedkoper? Typ "kennel 1" of "kennel 2".',
-            antwoord: 'kennel 1', alts: ['kennel 1','kennel1','1','kennel een','kennel één'],
-            hint: 'Vul k = 1 in bij beide. Welke geeft een lager bedrag?',
-            uitleg: 'Bij k = 1: Kennel 1 = 7×1+2 = 9 euro, Kennel 2 = 4×1+17 = 21 euro. Kennel 1 is veel goedkoper. Bij k = 5 zijn ze even duur (omslagpunt). Daarna stijgt Kennel 1 sneller (hellingsgetal 7 > 4), dus wordt juist Kennel 2 goedkoper.' },
-          { label: 'd',
-            vraag: 'Bij 10 dagen: welke kennel is dan goedkoper? Typ "kennel 1" of "kennel 2".',
-            antwoord: 'kennel 2', alts: ['kennel 2','kennel2','2','kennel twee'],
-            hint: 'Vul k = 10 in bij beide. 7×10+2 vs 4×10+17.',
-            uitleg: 'Bij k = 10: Kennel 1 = 72, Kennel 2 = 57. Kennel 2 is dan goedkoper.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 4, chapter: 'H8.4', title: 'Vergelijkingen oplossen',
-    desc: 'Algebraïsch oplossen, ook met negatieve getallen',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>vergelijkingen oplossen zonder balans-tekening</li>
-          <li>omgaan met minteken en negatieve getallen</li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>In deze paragraaf werken we met dezelfde regels als bij de balans, maar nu puur algebraïsch (zonder plaatjes). Dezelfde regel geldt: <strong>wat je links doet, doe je ook rechts</strong>.</p>
-        <p>Soms kom je negatieve antwoorden tegen (bv. x = −5). Dat is gewoon goed — een getal mag onder nul zijn.</p>
-      </div>
-      <div class="stappen"><strong>Aanpak: 4 stappen</strong><ol>
-        <li>Haal links en rechts hetzelfde aantal letters weg (de kleinste hoeveelheid).</li>
-        <li>Staat er nog een los getal aan de letterkant? Haal dat ook aan beide kanten weg.</li>
-        <li>Deel beide kanten door het getal vóór de letter.</li>
-        <li>Controleer je antwoord door het in te vullen in de oorspronkelijke vergelijking.</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeeld 1</strong><br>
-        <span class="stap"><span class="formula">4x + 23 = 9x − 12</span></span>
-        <span class="stap">Stap 1: −4x (kleinste letter eraf) → <span class="formula">23 = 5x − 12</span></span>
-        <span class="stap">Stap 2: +12 (los getal weg aan letterkant) → <span class="formula">35 = 5x</span></span>
-        <span class="stap">Stap 3: :5 → <span class="formula">x = 7</span></span>
-        <span class="stap">Check: 4×7+23 = 51, en 9×7−12 = 51. ✅</span>
-      </div>
-      <div class="voorbeeld"><strong>Voorbeeld 2 (negatief antwoord)</strong><br>
-        <span class="stap"><span class="formula">2p + 50 = −6p + 2</span></span>
-        <span class="stap">Stap 1: +6p (om +letters te krijgen) → <span class="formula">8p + 50 = 2</span></span>
-        <span class="stap">Stap 2: −50 → <span class="formula">8p = −48</span></span>
-        <span class="stap">Stap 3: :8 → <span class="formula">p = −6</span></span>
-      </div>
-      <div class="tip"><strong>Tip met negatieven:</strong> Als de letter een minteken heeft (zoals −6p), tel je hem er aan beide kanten BIJ op (+6p). Dan wordt het positief.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> bij −12 + 12 reken je dat goed uit als 0. Maar bij −12 ÷ 4 = −3 (let op het minteken in de uitkomst).</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Festival-pakket',
-        intro: `<p>Twee festivalbussen rijden naar Lowlands.<br>
-        Bus A: <span class="formula">k = 3a + 50</span> euro (a = aantal mensen).<br>
-        Bus B: <span class="formula">k = 9a + 2</span> euro.</p>
-        <p>Bij hoeveel mensen zijn ze even duur?</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Stel de vergelijking op. (antwoord beknopt, geen spaties)',
-            antwoord: '3a+50=9a+2', alts: ['3a+50=9a+2','3a + 50 = 9a + 2'],
-            hint: 'Bus A = Bus B.',
-            uitleg: '3a + 50 = 9a + 2.' },
-          { label: 'b',
-            vraag: 'Stap 1: haal 3a aan beide kanten weg. (antwoord beknopt, geen spaties)',
-            antwoord: '50=6a+2', alts: ['50=6a+2','50 = 6a + 2'],
-            hint: '9a − 3a = 6a.',
-            uitleg: '3a + 50 − 3a = 9a + 2 − 3a → 50 = 6a + 2.' },
-          { label: 'c',
-            vraag: 'Stap 2 en 3: los op. a = ?',
-            antwoord: '8',
-            hint: '-2, dan :6.',
-            uitleg: '50 = 6a + 2 → 48 = 6a → a = 8.' },
-          { label: 'd',
-            vraag: 'Hoeveel kost de bus dan per persoon-totaal? Vul a = 8 in bij bus A: 3 × 8 + 50.',
-            antwoord: '74',
-            hint: '24 + 50.',
-            uitleg: '3 × 8 + 50 = 24 + 50 = 74 euro totaal.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Glazenwassers Frenk en Arne',
-        intro: `<p>Twee glazenwassers gebruiken formules om hun rekening te berekenen. Hier is <span class="formula">u</span> = aantal uren werk en de uitkomst is in euro's.</p>
-        <p>Arne: <span class="formula">e = 34 + 21u</span><br>
-        Frenk: <span class="formula">e = 13 + 28u</span></p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Met welke vergelijking kun je het omslagpunt berekenen (waar ze even duur zijn)? (antwoord beknopt, geen spaties)',
-            antwoord: '34+21u=13+28u', alts: ['34+21u=13+28u','34 + 21u = 13 + 28u'],
-            hint: 'Arne = Frenk.',
-            uitleg: '34 + 21u = 13 + 28u.' },
-          { label: 'b',
-            vraag: 'Los op. u = ?',
-            antwoord: '3',
-            hint: '-21u dan -13: 21 = 7u.',
-            uitleg: '34 + 21u = 13 + 28u → 34 = 13 + 7u → 21 = 7u → u = 3.' },
-          { label: 'c',
-            vraag: 'Welke glazenwasser is na het omslagpunt (dus bij meer dan 3 uur werk) het goedkoopst? Typ "arne" of "frenk".',
-            antwoord: 'arne', alts: ['arne','Arne','ARNE'],
-            hint: 'Bij u = 4: Arne = 34 + 21×4 = 118. Frenk = 13 + 28×4 = 125.',
-            uitleg: 'Bij u = 4: Arne kost 118, Frenk kost 125. Arne is goedkoper na 3 uur. Frenk stijgt sneller (hellingsgetal 28 > 21).' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Pittige met negatieven',
-        intro: `<p>Soms staan er minnen in een vergelijking. Dan kunnen de antwoorden ook negatief zijn. Let extra goed op de tekens!</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Los op: 7y - 14 = 2y + 6. y = ?',
-            antwoord: '4',
-            hint: '-2y, dan +14, dan :5.',
-            uitleg: '7y − 14 = 2y + 6 → 5y − 14 = 6 → 5y = 20 → y = 4.' },
-          { label: 'b',
-            vraag: 'Los op: 2p + 50 = -6p + 2. p = ?',
-            antwoord: '-6',
-            hint: '+6p (om plus te maken), dan -50.',
-            uitleg: '2p + 50 = −6p + 2 → 8p + 50 = 2 → 8p = −48 → p = −6.' },
-          { label: 'c',
-            vraag: 'Los op: 5k + 4 = 3k - 12. k = ?',
-            antwoord: '-8',
-            hint: '-3k, dan -4. Antwoord wordt negatief.',
-            uitleg: '5k + 4 = 3k − 12 → 2k + 4 = −12 → 2k = −16 → k = −8.' },
-          { label: 'd',
-            vraag: 'Los op: 6x + 22 = -x + 1. x = ?',
-            antwoord: '-3',
-            hint: '+x, dan -22.',
-            uitleg: '6x + 22 = −x + 1 → 7x + 22 = 1 → 7x = −21 → x = −3.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 5, chapter: 'H8.5', title: 'Het omslagpunt',
-    desc: 'Wanneer zijn twee formules even duur/groot?',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>wat een omslagpunt is bij twee formules</li>
-          <li>de eerste coördinaat van het omslagpunt berekenen door gelijkstellen</li>
-          <li>oordelen welke formule vóór/ná het omslagpunt voordeliger is</li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>Het <strong>omslagpunt</strong> is het punt waarop twee formules dezelfde uitkomst geven. Bijvoorbeeld: bij welk aantal maanden zijn twee sportscholen even duur?</p>
-        <p>Grafisch: het is het snijpunt van de twee lijnen. Algebraïsch: het is de oplossing als je beide formules aan elkaar gelijk stelt.</p>
-        <p>Vóór en ná het omslagpunt is de ene formule kleiner dan de andere. Het omslagpunt is de "grenswaarde".</p>
-      </div>
-      <div class="stappen"><strong>Aanpak: omslagpunt berekenen</strong><ol>
-        <li>Schrijf beide formules op.</li>
-        <li>Stel ze gelijk aan elkaar (twee = tekens worden één vergelijking).</li>
-        <li>Los de vergelijking op (zoals in H8.3/H8.4).</li>
-        <li>De oplossing is de eerste coördinaat (de x-waarde) van het omslagpunt.</li>
-        <li>Vul die waarde in om de tweede coördinaat (y-waarde) te vinden.</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeeld</strong><br>
-        <span class="stap">Sportschool A: <span class="formula">k = 30m + 20</span></span>
-        <span class="stap">Sportschool B: <span class="formula">k = 26m + 36</span></span>
-        <span class="stap">Gelijkstellen: <span class="formula">30m + 20 = 26m + 36</span></span>
-        <span class="stap">Oplossen: 4m = 16, dus <span class="formula">m = 4</span></span>
-        <span class="stap">Tweede coördinaat: 30 × 4 + 20 = 140. Omslagpunt = (4, 140).</span>
-        <span class="stap">Bij 4 maanden zijn beide 140 €. Daarna is A duurder (helling 30 > 26).</span>
-      </div>
-      <div class="tip"><strong>Hoe weet je wie ná het omslagpunt goedkoper is?</strong> Kijk naar het <em>hellingsgetal</em> (getal vóór m). De formule met het kleinste hellingsgetal stijgt het minst snel → die wordt op den duur de goedkoopste.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> alleen de eerste coördinaat (m = 4) opschrijven. Een omslagpunt is een PUNT, dus heeft 2 coördinaten: (4, 140).</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Sportscholen Maas en Bink',
-        intro: `<p>Sportschool Maas rekent met de formule <span class="formula">k = 30m + 20</span>.<br>
-        Sportschool Bink rekent met <span class="formula">k = 26m + 36</span>.<br>
-        Hierin is <span class="formula">m</span> het aantal maanden en <span class="formula">k</span> de kosten in euro's.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bij welke maand m zijn ze even duur? Stel de vergelijking op. (antwoord beknopt, geen spaties)',
-            antwoord: '30m+20=26m+36', alts: ['30m+20=26m+36','30m + 20 = 26m + 36'],
-            hint: 'Maas = Bink.',
-            uitleg: '30m + 20 = 26m + 36.' },
-          { label: 'b',
-            vraag: 'Los op. m = ?',
-            antwoord: '4',
-            hint: '-26m, dan -20: 4m = 16.',
-            uitleg: '30m + 20 = 26m + 36 → 4m + 20 = 36 → 4m = 16 → m = 4. Omslagpunt: maand 4.' },
-          { label: 'c',
-            vraag: 'Hoeveel euro betaal je dan? Vul m = 4 in bij Maas (30m + 20).',
-            antwoord: '140',
-            hint: '120 + 20.',
-            uitleg: '30 × 4 + 20 = 120 + 20 = 140 euro.' },
-          { label: 'd',
-            vraag: 'Bij 10 maanden: welke sportschool is goedkoper? Typ "maas" of "bink".',
-            antwoord: 'bink', alts: ['bink','Bink','BINK'],
-            hint: 'Reken beide uit bij m = 10. 30×10+20 = 320 vs 26×10+36 = 296.',
-            uitleg: 'Bij m = 10: Maas = 320, Bink = 296. Bink is goedkoper (lager hellingsgetal 26).' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Babysitter Jozien en Lina',
-        intro: `<p>Jozien rekent <span class="formula">v = 8u</span> (u = uren oppassen, v = verdiend bedrag in €).<br>
-        Lina rekent <span class="formula">v = 4 + 6u</span> (zij vraagt 4 euro vervoer + 6 per uur).</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bij hoeveel uur u verdienen ze evenveel? Stel op. (antwoord beknopt, geen spaties)',
-            antwoord: '8u=4+6u', alts: ['8u=4+6u','8u = 4 + 6u'],
-            hint: 'Jozien = Lina.',
-            uitleg: '8u = 4 + 6u.' },
-          { label: 'b',
-            vraag: 'Los op. u = ?',
-            antwoord: '2',
-            hint: '-6u aan beide kanten.',
-            uitleg: '8u = 4 + 6u → 2u = 4 → u = 2 uur.' },
-          { label: 'c',
-            vraag: 'Bij 1 uur (dus minder dan 2): wie verdient meer? Typ "jozien" of "lina".',
-            antwoord: 'lina', alts: ['lina','Lina','LINA'],
-            hint: 'Bij u = 1: Jozien = 8, Lina = 4 + 6 = 10.',
-            uitleg: 'Bij u = 1: Jozien 8 €, Lina 10 €. Lina verdient meer bij weinig uren (door de 4 € startbedrag).' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Paardenstal',
-        intro: `<p>Paardenstal X: <span class="formula">k = 200 + 15m</span> (m = maanden).<br>
-        Paardenstal Y: <span class="formula">k = 350 + 5m</span>.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bij hoeveel maanden zijn de stallen even duur? Stel op. (antwoord beknopt, geen spaties)',
-            antwoord: '200+15m=350+5m', alts: ['200+15m=350+5m','200 + 15m = 350 + 5m'],
-            hint: 'X = Y.',
-            uitleg: '200 + 15m = 350 + 5m.' },
-          { label: 'b',
-            vraag: 'Los op. m = ?',
-            antwoord: '15',
-            hint: '-5m, dan -200: 10m = 150.',
-            uitleg: '200 + 15m = 350 + 5m → 200 + 10m = 350 → 10m = 150 → m = 15.' },
-          { label: 'c',
-            vraag: 'Wat betaal je dan? Vul m = 15 in bij X (200 + 15m).',
-            antwoord: '425',
-            hint: '200 + 225.',
-            uitleg: '200 + 15 × 15 = 200 + 225 = 425 euro.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 6, chapter: 'H10 voor', title: 'Kwadraten en wortels',
-    desc: 'Basiskennis voor H10: machten en wortels',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>wat een kwadraat is en hoe je hem berekent</li>
-          <li>wat een wortel is en hoe je hem berekent</li>
-          <li>het verschil tussen <span class="formula">(−3)²</span> en <span class="formula">−3²</span></li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>Een <strong>kwadraat</strong> betekent een getal keer zichzelf: <span class="formula">x² = x × x</span>. Bijvoorbeeld <span class="formula">5² = 5 × 5 = 25</span>.</p>
-        <p>De <strong>wortel</strong> (<span class="formula">√x</span>) is het tegenovergestelde: welk positief getal moest je kwadrateren om x te krijgen? Bijvoorbeeld <span class="formula">√25 = 5</span> want 5² = 25.</p>
-        <p>Onder een wortelteken mag <strong>nooit een negatief getal</strong> staan. <span class="formula">√(−9)</span> bestaat niet.</p>
-      </div>
-      <div class="stappen"><strong>Aanpak: het minteken bij kwadraten</strong><ol>
-        <li>Staan er <strong>haakjes</strong> om het minteken (zoals <span class="formula">(−3)²</span>)? Dan wordt het minteken meegekwadrateerd. (−3)² = (−3)(−3) = 9.</li>
-        <li>Staan er <strong>geen haakjes</strong> (zoals <span class="formula">−3²</span>)? Eerst kwadraat (3² = 9), dan minteken (−9).</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeelden kwadraten</strong><br>
-        <span class="stap"><span class="formula">7² = 7 × 7 = 49</span></span>
-        <span class="stap"><span class="formula">(−4)² = (−4)(−4) = 16</span> (met haakjes!)</span>
-        <span class="stap"><span class="formula">−4² = −(4 × 4) = −16</span> (zonder haakjes!)</span>
-      </div>
-      <div class="voorbeeld"><strong>Voorbeelden wortels</strong><br>
-        <span class="stap"><span class="formula">√81 = 9</span> (want 9 × 9 = 81)</span>
-        <span class="stap"><span class="formula">√100 = 10</span></span>
-        <span class="stap"><span class="formula">√0 = 0</span></span>
-        <span class="stap"><span class="formula">√(−16)</span> bestaat niet</span>
-      </div>
-      <div class="tip"><strong>Handig om te onthouden:</strong> 1²=1, 2²=4, 3²=9, 4²=16, 5²=25, 6²=36, 7²=49, 8²=64, 9²=81, 10²=100, 11²=121, 12²=144.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> denken dat <span class="formula">−5² = 25</span>. NEE. Zonder haakjes is dat −25. Met haakjes (−5)² is het 25.</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Vierkante TikTok-thumbnail',
-        intro: `<p>Lina ontwerpt vierkante thumbnails voor TikTok. Een vierkante afbeelding heeft een zijde van <span class="formula">z</span> cm. De oppervlakte is <span class="formula">z²</span> cm².</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken de oppervlakte van een thumbnail met zijde 7 cm. (z = 7)',
-            antwoord: '49',
-            hint: '7 × 7.',
-            uitleg: '7² = 7 × 7 = 49 cm².' },
-          { label: 'b',
-            vraag: 'Een andere thumbnail heeft een oppervlakte van 100 cm². Wat is de zijde? (in cm)',
-            antwoord: '10',
-            hint: 'Welk getal × zichzelf = 100? Of: √100.',
-            uitleg: '√100 = 10, want 10 × 10 = 100. Zijde is 10 cm.' },
-          { label: 'c',
-            vraag: 'Een derde thumbnail heeft een oppervlakte van 144 cm². Wat is de zijde?',
-            antwoord: '12',
-            hint: '√144.',
-            uitleg: '√144 = 12, want 12 × 12 = 144.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Haakjes maken het verschil',
-        intro: `<p>Let goed op het verschil tussen <span class="formula">(-5)²</span> en <span class="formula">-5²</span>. Bij haakjes wordt het minteken meegekwadrateerd, zonder haakjes niet.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken: (-5)² = ?',
-            antwoord: '25',
-            hint: 'Min × min = plus. -5 × -5.',
-            uitleg: '(-5)² = (-5) × (-5) = 25. Min × min = plus.' },
-          { label: 'b',
-            vraag: 'Bereken: -5² = ?  (LET OP: geen haakjes!)',
-            antwoord: '-25',
-            hint: 'Eerst 5² = 25, dan het minteken ervoor: -25.',
-            uitleg: 'Zonder haakjes: eerst 5² = 25, dan minteken erbij = -25.' },
-          { label: 'c',
-            vraag: 'Bereken: (-8)² = ?',
-            antwoord: '64',
-            hint: '-8 × -8.',
-            uitleg: '(-8)² = 64.' },
-          { label: 'd',
-            vraag: 'Bereken: -8² = ?',
-            antwoord: '-64',
-            hint: 'Eerst 8², dan minteken.',
-            uitleg: '-8² = -64.' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Wortels uitrekenen',
-        intro: `<p>De wortel van een getal is het getal dat je moet kwadrateren om dat getal te krijgen. <span class="formula">√x</span> bestaat alleen voor x ≥ 0.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken: √49',
-            antwoord: '7',
-            hint: '7 × 7 = 49.',
-            uitleg: '√49 = 7.' },
-          { label: 'b',
-            vraag: 'Bereken: √81',
-            antwoord: '9',
-            hint: '9 × 9 = 81.',
-            uitleg: '√81 = 9.' },
-          { label: 'c', type: 'mc',
-            vraag: 'Bestaat √(-16)?',
-            opties: ['Ja, antwoord is -4', 'Ja, antwoord is 4', 'Nee, bestaat niet', 'Ja, antwoord is 16'],
-            juist: 2,
-            hint: 'Onder de wortel mag geen negatief getal.',
-            uitleg: '√(-16) bestaat niet, want geen enkel getal × zichzelf geeft een negatief getal.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 7, chapter: 'H10.1', title: 'Lineair verband',
-    desc: 'Rechte lijn. Hellingsgetal en startgetal.',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>wat een lineair verband is (formule, tabel, grafiek)</li>
-          <li>hoe je het hellingsgetal en startgetal aflees</li>
-          <li>hoe je een formule maakt bij een tabel of grafiek</li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>Een <strong>lineair verband</strong> heeft drie kenmerken die altijd kloppen:</p>
+        <p>Een cilinder bestaat uit 3 onderdelen die je los kunt berekenen:</p>
         <ul style="margin-left:18px;">
-          <li><strong>Grafiek</strong> = een rechte lijn</li>
-          <li><strong>Tabel</strong> = de toenamen tussen opeenvolgende y-waarden zijn steeds gelijk</li>
-          <li><strong>Formule</strong> = van de vorm <span class="formula">y = a × x + b</span></li>
+          <li><strong>Bodem</strong> (onderkant) = cirkel</li>
+          <li><strong>Bovenkant</strong> = ook een cirkel (zelfde grootte)</li>
+          <li><strong>Mantel</strong> (de wand rondom) = uitgerold een RECHTHOEK</li>
         </ul>
-        <p>Hierin is <span class="formula">a</span> het <strong>hellingsgetal</strong> (hoeveel y omhoog/omlaag gaat per stap x). En <span class="formula">b</span> is het <strong>startgetal</strong> (de waarde van y als x = 0).</p>
+        <p>De clou bij de mantel: als je de zijwand zou openknippen en plat leggen, krijg je een rechthoek. De lengte van die rechthoek = de omtrek van de cirkel. De breedte = de hoogte van de cilinder.</p>
+        <p>Formules:</p>
+        <p style="text-align:center;font-size:16px;margin:6px 0;"><span class="formula">mantel = omtrek cirkel × hoogte = diameter × π × hoogte</span></p>
+        <p style="text-align:center;font-size:16px;margin:6px 0;"><span class="formula">totale oppervlakte = mantel + 2 × oppervlakte bodem</span></p>
       </div>
-      <div class="stappen"><strong>Aanpak: formule maken bij een tabel</strong><ol>
-        <li>Bereken de toenamen tussen opeenvolgende y-waarden. Zijn ze gelijk? Dan is het lineair.</li>
-        <li>De gemeenschappelijke toename = het hellingsgetal (a).</li>
-        <li>Kijk wat y is als x = 0 → dat is het startgetal (b).</li>
-        <li>Vul in: <span class="formula">y = a × x + b</span>.</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeeld: kaarsen</strong><br>
-        <span class="stap">Tabel: brandtijd b (u) | lengte l (cm)</span>
-        <span class="stap">0 → 15 | 1 → 12 | 2 → 9 | 3 → 6 | 4 → 3</span>
-        <span class="stap">Toenamen: −3, −3, −3, −3. Gelijk → lineair.</span>
-        <span class="stap">Hellingsgetal = −3 (kaars wordt 3 cm korter per uur).</span>
-        <span class="stap">Startgetal = 15 (lengte bij b = 0).</span>
-        <span class="stap">Formule: <span class="formula">l = −3b + 15</span></span>
-      </div>
-      <div class="tip"><strong>Negatief hellingsgetal:</strong> als de tabelwaarden DALEN, is het hellingsgetal NEGATIEF (bv. −3 in plaats van 3).</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> startgetal verwarren met de eerste y-waarde. Het startgetal hoort altijd bij x = 0, niet bij de eerste rij van de tabel (als die niet bij x=0 begint).</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Ellen verwarmt water',
-        intro: `<p>Ellen doet bij natuurkunde een proefje met het verwarmen van water. De grafiek is een rechte lijn (lineair verband).</p>
-        <table><tr><th>aantal minuten</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
-        <tr><th>temperatuur (°C)</th><td>15</td><td>20</td><td>25</td><td>30</td><td>35</td><td>40</td></tr></table>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Wat was de begintemperatuur van het water? (in °C, bij minuut 0)',
-            antwoord: '15',
-            hint: 'Kijk in de tabel bij minuten = 0.',
-            uitleg: 'Bij 0 minuten was de temperatuur 15 °C. Dat is het startgetal.' },
-          { label: 'b',
-            vraag: 'Met hoeveel graden stijgt de temperatuur per minuut? (de toename)',
-            antwoord: '5',
-            hint: 'Verschil tussen elke minuut: 20-15, 25-20, ...',
-            uitleg: 'Elke minuut +5 °C. Dat is steeds hetzelfde → lineair. Het hellingsgetal is 5.' },
-          { label: 'c',
-            vraag: 'Wat is de formule? (antwoord beknopt, geen spaties)',
-            antwoord: 'T=5m+15', alts: ['T=5m+15','T = 5m + 15','T=5×m+15','T = 5 × m + 15','5m+15','5×m+15'],
-            hint: 'T = hellingsgetal × m + startgetal.',
-            uitleg: 'T = 5 × m + 15 (of korter: T = 5m + 15).' },
-          { label: 'd',
-            vraag: 'Wat is de temperatuur na 8 minuten? Gebruik je formule.',
-            antwoord: '55',
-            hint: '5 × 8 + 15.',
-            uitleg: '5 × 8 + 15 = 40 + 15 = 55 °C.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - De brandende kaars',
-        intro: `<p>Lina steekt een kaars aan. De lengte (in cm) hangt af van hoe lang de kaars brandt (in uur, noem dat <span class="formula">b</span>).</p>
-        <table><tr><th>b in uren</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td><td>5</td></tr>
-        <tr><th>l in cm</th><td>15</td><td>12</td><td>9</td><td>6</td><td>3</td><td>0</td></tr></table>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Wat is de beginlengte van de kaars (bij 0 uur)? (in cm)',
-            antwoord: '15',
-            hint: 'Tabel: b = 0.',
-            uitleg: 'Bij 0 uur is de kaars 15 cm.' },
-          { label: 'b',
-            vraag: 'Met hoeveel cm korter wordt de kaars per uur? (geef positief getal)',
-            antwoord: '3',
-            hint: 'Verschil: 15-12, 12-9, ...',
-            uitleg: 'De kaars wordt 3 cm korter per uur. Steeds gelijk → lineair.' },
-          { label: 'c',
-            vraag: 'Wat is het hellingsgetal? (let op het teken, want kaars wordt korter)',
-            antwoord: '-3',
-            hint: 'Wordt minder → negatief.',
-            uitleg: 'Hellingsgetal is -3 (de lengte neemt af).' },
-          { label: 'd',
-            vraag: 'Vul de formule in: l = ___ × b + ___ . Antwoord beknopt, zonder spaties.',
-            antwoord: 'l=-3b+15', alts: ['l=-3b+15','l = -3b + 15','-3b+15','-3×b+15'],
-            hint: 'Hellingsgetal × b + startgetal.',
-            uitleg: 'l = -3 × b + 15, of korter: l = -3b + 15.' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Tabel herkennen',
-        intro: `<p>Hieronder staan twee tabellen. Onderzoek welke een lineair verband heeft.</p>
-        <p>Tabel 1:</p>
-        <table><tr><th>x</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
-        <tr><th>y</th><td>3</td><td>7</td><td>11</td><td>15</td><td>19</td></tr></table>
-        <p>Tabel 2:</p>
-        <table><tr><th>x</th><td>0</td><td>1</td><td>2</td><td>3</td><td>4</td></tr>
-        <tr><th>y</th><td>11</td><td>13</td><td>16</td><td>20</td><td>25</td></tr></table>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Reken de toenamen van Tabel 1 uit. Wat is het verschil tussen elke twee opeenvolgende y-waarden? (1 getal)',
-            antwoord: '4',
-            hint: '7-3, 11-7, 15-11, 19-15.',
-            uitleg: 'Steeds +4. De toenamen zijn allemaal 4.' },
-          { label: 'b', type: 'mc',
-            vraag: 'Is Tabel 1 een lineair verband?',
-            opties: ['Ja, toenamen zijn steeds gelijk', 'Nee, toenamen verschillen', 'Kan ik niet zien zonder grafiek'],
-            juist: 0,
-            hint: 'Steeds dezelfde toename = lineair.',
-            uitleg: 'Ja, toenamen zijn steeds +4. Dat is lineair.' },
-          { label: 'c',
-            vraag: 'En Tabel 2? Bereken de toenamen 13-11, 16-13, 20-16, 25-20. Geef ze in volgorde, gescheiden door komma. (antwoord beknopt, geen spaties)',
-            antwoord: '2,3,4,5', alts: ['2,3,4,5','2, 3, 4, 5'],
-            hint: 'Trek elk volgend getal van het vorige af.',
-            uitleg: 'Toenamen: 2, 3, 4, 5. Niet gelijk!' },
-          { label: 'd', type: 'mc',
-            vraag: 'Is Tabel 2 een lineair verband?',
-            opties: ['Ja', 'Nee', 'Soms'],
-            juist: 1,
-            hint: 'Toenamen verschillen.',
-            uitleg: 'Nee, toenamen zijn niet steeds gelijk. Geen lineair verband.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 8, chapter: 'H10.2', title: 'Kwadratisch verband',
-    desc: 'Grafiek is een parabool. Formule met x².',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>wat een kwadratisch verband is</li>
-          <li>het herkennen aan de formule, tabel en grafiek</li>
-          <li>y-waarden uitrekenen bij gegeven x</li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>Een <strong>kwadratisch verband</strong> heeft drie kenmerken:</p>
-        <ul style="margin-left:18px;">
-          <li><strong>Grafiek</strong> = een <em>parabool</em> (U-vorm of bergvorm)</li>
-          <li><strong>Tabel</strong> = het verschil tussen de toenamen is steeds hetzelfde (de toenamen zelf zijn niet gelijk, maar wel het verschil <em>tussen</em> de toenamen)</li>
-          <li><strong>Formule</strong> = bevat <span class="formula">x²</span> (of t², n², ...)</li>
-        </ul>
-      </div>
-      <div class="stappen"><strong>Aanpak: y berekenen bij gegeven x</strong><ol>
-        <li>Vul de x-waarde in. LET OP haakjes bij negatieve waarden!</li>
-        <li>Bereken eerst het kwadraat (x²).</li>
-        <li>Vermenigvuldig met het getal vóór x² (bv. 3 × x²).</li>
-        <li>Tel of trek de overige termen erbij/eraf.</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeeld 1: y = x²</strong><br>
-        <span class="stap">x = −3 → (−3)² = 9, dus y = 9</span>
-        <span class="stap">x = 0 → 0² = 0, dus y = 0</span>
-        <span class="stap">x = 2 → 2² = 4, dus y = 4</span>
-        <span class="stap">Tabel: x: −3 −2 −1 0 1 2 3 / y: 9 4 1 0 1 4 9 → U-vorm parabool</span>
-      </div>
-      <div class="voorbeeld"><strong>Voorbeeld 2: y = −2x² + 5</strong><br>
-        <span class="stap">x = 1: 1² = 1, dan −2 × 1 = −2, dan + 5 = 3</span>
-        <span class="stap">x = 0: 0² = 0, −2 × 0 + 5 = 5 (de top van de parabool)</span>
-        <span class="stap">Met − voor x²: parabool is een BERG (omgekeerde U), niet een dal.</span>
-      </div>
-      <div class="tip"><strong>Volgorde van bewerkingen:</strong> eerst kwadraat (²), dan vermenigvuldigen (×), dan optellen/aftrekken (+ −).</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> bij y = 3x² met x = 2: eerst 3 × 2 = 6, dan 6² = 36 ❌. Dat is FOUT. Eerst x² = 4, dan 3 × 4 = 12. ✅</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Henk legt vierkante tegels',
-        intro: `<p>Henk legt vierkanten tegels in zijn tuin. Het aantal tegels per zijde noemen we <span class="formula">z</span>.</p>
-        <div class="figuur">z=1: 1 tegel | z=2: 4 tegels | z=3: 9 tegels | z=4: 16 tegels</div>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Hoeveel tegels heeft Henk nodig voor een vierkant met zijde z = 5?',
-            antwoord: '25',
-            hint: 'Aantal = z × z = z².',
-            uitleg: '5 × 5 = 25 tegels.' },
-          { label: 'b',
-            vraag: 'Schrijf de formule. (antwoord beknopt, geen spaties)',
-            antwoord: 'T=z²', alts: ['T=z²','T = z²','T=z2','T=z*z','T=z×z'],
-            hint: 'T = z × z.',
-            uitleg: 'T = z × z = z².' },
-          { label: 'c',
-            vraag: 'Bereken het aantal tegels bij z = 7.',
-            antwoord: '49',
-            hint: '7².',
-            uitleg: '7² = 49 tegels.' },
-          { label: 'd', type: 'mc',
-            vraag: 'Is dit een lineair of kwadratisch verband?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 1,
-            hint: 'Formule heeft z².',
-            uitleg: 'Formule bevat z² → kwadratisch verband.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Werken met de formule y = x²',
-        intro: `<p>Gegeven is de formule <span class="formula">y = x²</span>. We gaan tabel-waarden uitrekenen voor verschillende x.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken y als x = 4.',
-            antwoord: '16',
-            hint: '4 × 4.',
-            uitleg: '4² = 16.' },
-          { label: 'b',
-            vraag: 'Bereken y als x = -3. Let op de haakjes: (-3)².',
-            antwoord: '9',
-            hint: '-3 × -3 = 9 (min × min).',
-            uitleg: '(-3)² = (-3) × (-3) = 9.' },
-          { label: 'c',
-            vraag: 'Bij welke x is y = 0?',
-            antwoord: '0',
-            hint: 'Welk getal × zichzelf = 0?',
-            uitleg: '0² = 0, dus bij x = 0 is y = 0. Dat is het laagste punt van de parabool.' },
-          { label: 'd', type: 'mc',
-            vraag: 'Hoe ziet de grafiek van y = x² eruit?',
-            opties: ['Rechte stijgende lijn', 'U-vorm (parabool)', 'Bergvorm omgekeerde U', 'Stippellijn'],
-            juist: 1,
-            hint: 'Y wordt 0 bij x=0 en groter aan beide kanten.',
-            uitleg: 'De grafiek van y = x² is een U-vormige parabool met laagste punt op (0, 0).' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Andere kwadratische formules',
-        intro: `<p>Niet elke kwadratische formule is gewoon x². Soms staat er een getal vóór de x² of een vast getal erachter.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken y bij y = 3x² als x = 2. (eerst kwadrateren, dan × 3)',
-            antwoord: '12',
-            hint: '2² = 4, dan 3 × 4.',
-            uitleg: '2² = 4, dan 3 × 4 = 12.' },
-          { label: 'b',
-            vraag: 'Bereken y bij y = x² - 3 als x = -3.',
-            antwoord: '6',
-            hint: '(-3)² = 9, dan -3.',
-            uitleg: '(-3)² = 9, dan 9 − 3 = 6.' },
-          { label: 'c',
-            vraag: 'Bereken y bij y = -2x² + 5 als x = 1.',
-            antwoord: '3',
-            hint: '1² = 1, dan × -2 = -2, dan + 5.',
-            uitleg: '1² = 1, -2 × 1 = -2, -2 + 5 = 3.' },
-          { label: 'd', type: 'mc',
-            vraag: 'Welke formule is GEEN kwadratisch verband?',
-            opties: ['y = x² + 1', 'y = 4x²', 'y = 2x + 5', 'y = -x² + 7'],
-            juist: 2,
-            hint: 'Welke heeft geen x²?',
-            uitleg: 'y = 2x + 5 heeft geen x², dat is lineair.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 9, chapter: 'H10.3', title: 'Wortelverband',
-    desc: 'Letter onder een wortelteken. Stijgt langzaam.',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>wat een wortelverband is en hoe je het herkent</li>
-          <li>y-waarden uitrekenen bij gegeven x</li>
-          <li>welke x-waarden je wel/niet mag invullen</li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>Een <strong>wortelverband</strong> (of wortelformule) heeft de letter <strong>onder het wortelteken</strong>. Voorbeelden: <span class="formula">y = √x</span>, <span class="formula">y = √(x + 5)</span>, <span class="formula">y = 4 × √x</span>.</p>
-        <p>De grafiek <strong>begint op één punt</strong> (waar het getal onder de wortel 0 is) en <strong>stijgt steeds langzamer</strong>.</p>
-        <p>Onder het wortelteken mag het getal <strong>niet negatief</strong> zijn. Daarom heeft elke wortelformule een minimum x-waarde.</p>
-      </div>
-      <div class="stappen"><strong>Aanpak: y uitrekenen</strong><ol>
-        <li>Vul de x-waarde in onder de wortel.</li>
-        <li>Reken eerst alles ONDER de wortel uit.</li>
-        <li>Neem dan de wortel.</li>
-        <li>Vermenigvuldig met het getal vóór de wortel (als dat er is).</li>
-      </ol></div>
-      <div class="stappen"><strong>Aanpak: kleinste x bepalen</strong><ol>
-        <li>Het getal onder de wortel mag minimaal 0 zijn.</li>
-        <li>Los op: (onder de wortel) ≥ 0, of: (onder de wortel) = 0.</li>
-        <li>Die x is de kleinste die mag.</li>
-      </ol></div>
-      <div class="voorbeeld"><strong>Voorbeeld 1: y = √(x + 5) bij x = 4</strong><br>
-        <span class="stap">Onder wortel: 4 + 5 = 9</span>
-        <span class="stap">Wortel: √9 = 3</span>
-        <span class="stap">Dus y = 3</span>
-      </div>
-      <div class="voorbeeld"><strong>Voorbeeld 2: y = 2 × √x bij x = 16</strong><br>
-        <span class="stap">Wortel: √16 = 4</span>
-        <span class="stap">Vermenigvuldig: 2 × 4 = 8</span>
-        <span class="stap">Dus y = 8</span>
-      </div>
-      <div class="voorbeeld"><strong>Voorbeeld 3: kleinste x van y = √(x − 4)</strong><br>
-        <span class="stap">x − 4 ≥ 0 → x ≥ 4</span>
-        <span class="stap">Dus de kleinste toegestane x is 4 (dan is y = √0 = 0).</span>
-      </div>
-      <div class="tip"><strong>Tip:</strong> Wortel van 0 = 0. Wortel van een negatief getal bestaat niet.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> bij <span class="formula">y = √(x + 5)</span> denken dat x ≥ 5 mag. Het gaat om wat ONDER de wortel staat: x + 5 ≥ 0, dus x ≥ −5.</div>
-    `,
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Vierkant oppervlak → zijde',
-        intro: `<p>Een vierkant heeft een oppervlakte van <span class="formula">p</span> cm². De lengte van de zijde noem je <span class="formula">z</span> cm. Omdat oppervlak = zijde × zijde geldt: <span class="formula">z = √p</span>.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Een vierkant heeft een oppervlakte van 16 cm². Hoe lang is de zijde?',
-            antwoord: '4',
-            hint: '√16.',
-            uitleg: '√16 = 4. Zijde is 4 cm.' },
-          { label: 'b',
-            vraag: 'Een vierkant heeft een oppervlakte van 64 cm². Hoe lang is de zijde?',
-            antwoord: '8',
-            hint: '√64.',
-            uitleg: '√64 = 8.' },
-          { label: 'c',
-            vraag: 'En bij 25 cm²?',
-            antwoord: '5',
-            hint: '√25.',
-            uitleg: '√25 = 5.' },
-          { label: 'd', type: 'mc',
-            vraag: 'Hoe heet dit type verband?',
-            opties: ['Lineair verband', 'Kwadratisch verband', 'Wortelverband'],
-            juist: 2,
-            hint: 'Letter staat onder een wortelteken.',
-            uitleg: 'z = √p heeft de letter p onder de wortel → wortelverband.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Werken met wortelformules',
-        intro: `<p>Gegeven is de formule <span class="formula">y = √(x + 3)</span>. Reken eerst onder de wortel uit, daarna de wortel nemen.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken y als x = 1. (eerst 1+3, dan wortel)',
-            antwoord: '2',
-            hint: '1 + 3 = 4, √4 = ?',
-            uitleg: '1 + 3 = 4, dan √4 = 2.' },
-          { label: 'b',
-            vraag: 'Bereken y als x = 6.',
-            antwoord: '3',
-            hint: '6 + 3 = 9.',
-            uitleg: '6 + 3 = 9, dan √9 = 3.' },
-          { label: 'c',
-            vraag: 'Bereken y als x = 13.',
-            antwoord: '4',
-            hint: '13 + 3 = 16.',
-            uitleg: '13 + 3 = 16, dan √16 = 4.' },
-          { label: 'd',
-            vraag: 'Voor welke x kun je niet rekenen? Wat is het kleinste getal dat je voor x mag invullen?',
-            antwoord: '-3',
-            hint: 'Onder wortel mag niet negatief. x + 3 ≥ 0.',
-            uitleg: 'x + 3 mag niet negatief zijn → x ≥ -3. Kleinste is -3 (dan √0 = 0).' }
-        ]
-      },
-      {
-        titel: 'Opgave 3 - Andere wortelformules',
-        intro: `<p>Wortelformules kunnen ook een getal vóór de wortel hebben.</p>`,
-        sub: [
-          { label: 'a',
-            vraag: 'Bereken y bij y = 2 × √x als x = 9.',
-            antwoord: '6',
-            hint: '√9 = 3, dan × 2.',
-            uitleg: '√9 = 3, dan 2 × 3 = 6.' },
-          { label: 'b',
-            vraag: 'Bereken y bij y = √(x - 4) als x = 20.',
-            antwoord: '4',
-            hint: '20 - 4 = 16.',
-            uitleg: '20 − 4 = 16, dan √16 = 4.' },
-          { label: 'c',
-            vraag: 'Wat is het kleinste getal dat je voor x mag invullen in y = √(x - 4)?',
-            antwoord: '4',
-            hint: 'x - 4 ≥ 0.',
-            uitleg: 'x − 4 mag niet negatief → x ≥ 4.' },
-          { label: 'd', type: 'mc',
-            vraag: 'Bestaat √(-9)?',
-            opties: ['Ja, antwoord is 3', 'Ja, antwoord is -3', 'Nee, bestaat niet', 'Ja, antwoord is 81'],
-            juist: 2,
-            hint: 'Onder wortel mag niet negatief.',
-            uitleg: 'Wortel van een negatief getal bestaat niet.' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 10, chapter: 'H10.4', title: 'Verbanden herkennen',
-    desc: 'Aan formule of grafiek zien welk verband het is',
-    uitleg: `
-      <div class="leerdoel"><strong>Je leert in deze paragraaf:</strong>
-        <ul>
-          <li>het verschil tussen lineaire, kwadratische en wortelverbanden</li>
-          <li>het verband herkennen aan formule, tabel of grafiek</li>
-        </ul>
-      </div>
-      <div class="theorie"><strong>Theorie</strong>
-        <p>Je hebt nu drie soorten verbanden geleerd. Hieronder een overzicht waarmee je ze uit elkaar houdt.</p>
-        <table style="border-collapse:collapse;margin:8px 0;width:100%;font-size:14px;">
-          <tr style="background:#f3e8ff;">
-            <th style="border:1px solid #c4b5fd;padding:6px;">Verband</th>
-            <th style="border:1px solid #c4b5fd;padding:6px;">Formule</th>
-            <th style="border:1px solid #c4b5fd;padding:6px;">Grafiek</th>
-            <th style="border:1px solid #c4b5fd;padding:6px;">Tabel</th>
-          </tr>
-          <tr><td style="border:1px solid #c4b5fd;padding:6px;">Lineair</td><td style="border:1px solid #c4b5fd;padding:6px;">y = ax + b</td><td style="border:1px solid #c4b5fd;padding:6px;">Rechte lijn</td><td style="border:1px solid #c4b5fd;padding:6px;">Toenamen gelijk</td></tr>
-          <tr><td style="border:1px solid #c4b5fd;padding:6px;">Kwadratisch</td><td style="border:1px solid #c4b5fd;padding:6px;">y = ... x² ...</td><td style="border:1px solid #c4b5fd;padding:6px;">Parabool (U of berg)</td><td style="border:1px solid #c4b5fd;padding:6px;">Verschil tussen toenamen gelijk</td></tr>
-          <tr><td style="border:1px solid #c4b5fd;padding:6px;">Wortel</td><td style="border:1px solid #c4b5fd;padding:6px;">y = ... √x ...</td><td style="border:1px solid #c4b5fd;padding:6px;">Stijgt steeds langzamer</td><td style="border:1px solid #c4b5fd;padding:6px;">Toenamen worden steeds kleiner</td></tr>
-        </table>
-      </div>
-      <div class="stappen"><strong>Aanpak: herkennen aan een FORMULE</strong><ol>
-        <li>Zie je <span class="formula">x²</span> (of n², t²)? → <strong>kwadratisch</strong></li>
-        <li>Zie je <span class="formula">√</span> met de letter eronder? → <strong>wortel</strong></li>
-        <li>Geen van beide? → <strong>lineair</strong></li>
-      </ol></div>
-      <div class="stappen"><strong>Aanpak: herkennen aan een GRAFIEK</strong><ol>
-        <li>Is het een rechte lijn? → <strong>lineair</strong></li>
-        <li>Is het een gebogen lijn met een laagste of hoogste punt (U of berg)? → <strong>kwadratisch</strong></li>
-        <li>Is het een kromme die op één punt begint en steeds langzamer omhoog gaat? → <strong>wortel</strong></li>
+      <div class="stappen"><strong>Aanpak: totale oppervlakte</strong><ol>
+        <li>Bereken de omtrek van de bodem (diameter × π).</li>
+        <li>Bereken de mantel: omtrek × hoogte.</li>
+        <li>Bereken de oppervlakte van de bodem (straal × straal × π).</li>
+        <li>Totaal = mantel + 2 × bodem (twee cirkels: boven én onder).</li>
       </ol></div>
       <div class="voorbeeld"><strong>Voorbeeld</strong><br>
-        <span class="stap"><span class="formula">y = 3x − 5</span> → geen x², geen wortel → <strong>lineair</strong></span>
-        <span class="stap"><span class="formula">y = x² − 4</span> → x² aanwezig → <strong>kwadratisch</strong></span>
-        <span class="stap"><span class="formula">y = √(x + 2)</span> → letter onder wortel → <strong>wortel</strong></span>
+        <span class="stap">Een conservenblik heeft diameter 8 cm en hoogte 10 cm.</span>
+        <span class="stap">Omtrek bodem = 8 × 3,14 = 25,12 cm.</span>
+        <span class="stap">Mantel = 25,12 × 10 = 251,2 cm².</span>
+        <span class="stap">Straal = 4 cm. Oppervlakte bodem = 4 × 4 × 3,14 = 50,24 cm².</span>
+        <span class="stap">Totale oppervlakte = 251,2 + 2 × 50,24 = 251,2 + 100,48 = 351,68 cm².</span>
       </div>
-      <div class="tip"><strong>Snelcheck:</strong> Kijk eerst naar de formule. Daar zie je het direct.</div>
-      <div class="fout"><strong>Veelgemaakte fout:</strong> denken dat <span class="formula">y = √x + 2</span> en <span class="formula">y = √(x + 2)</span> hetzelfde zijn. NIET WAAR. Bij de eerste staat alleen x onder de wortel, plus 2 ernaast. Bij de tweede staat x + 2 ONDER de wortel.</div>
+      <div class="tip"><strong>Let op de context:</strong> bij een open beker tel je MAAR ÉÉN cirkel mee (alleen de bodem, geen deksel). Lees de vraag goed!</div>
+      <div class="fout"><strong>Veelgemaakte fout:</strong> bij de mantel diameter vergeten te vermenigvuldigen met π. De mantel is GEEN diameter × hoogte, maar OMTREK × hoogte. En de omtrek is diameter × π.</div>
     `,
     opgaven: [
       {
-        titel: 'Opgave 1 - Drie formules van Jarne',
-        intro: `<p>Jarne heeft drie formules in zijn schrift staan:</p>
-        <p>Formule 1: <span class="formula">y = 3x - 5</span><br>
-        Formule 2: <span class="formula">y = 2 × √x</span><br>
-        Formule 3: <span class="formula">y = x² - 2</span></p>`,
+        titel: 'Opgave 1 - Cilinder uit elkaar',
+        intro: `<p>Stel je voor dat je een wc-rolletje openknipt en plat legt. Hoeveel onderdelen heeft een cilinder?</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 360 150" style="max-width:400px;width:100%;height:auto;">
+  <circle cx="40" cy="40" r="30" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="40" y="45" text-anchor="middle" font-size="11" fill="#92400e">cirkel</text>
+  <rect x="100" y="20" width="160" height="80" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <text x="180" y="65" text-anchor="middle" font-size="12" fill="#1d4ed8" font-weight="bold">mantel (rechthoek)</text>
+  <text x="180" y="112" text-anchor="middle" font-size="10" fill="#5b21b6">lengte = omtrek cirkel</text>
+  <text x="285" y="65" font-size="10" fill="#5b21b6">b = hoogte</text>
+  <circle cx="320" cy="40" r="30" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+  <text x="320" y="45" text-anchor="middle" font-size="11" fill="#92400e">cirkel</text>
+</svg></div>`,
         sub: [
-          { label: 'a', type: 'mc',
-            vraag: 'Welk verband hoort bij Formule 1 (y = 3x - 5)?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 0,
-            hint: 'Geen x², geen wortel.',
-            uitleg: 'Gewone x, geen x², geen wortel → lineair.' },
-          { label: 'b', type: 'mc',
-            vraag: 'Welk verband hoort bij Formule 2 (y = 2 × √x)?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 2,
-            hint: 'Wat staat er onder het wortelteken?',
-            uitleg: 'Letter onder wortelteken → wortelverband.' },
-          { label: 'c', type: 'mc',
-            vraag: 'Welk verband hoort bij Formule 3 (y = x² - 2)?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 1,
-            hint: 'Wat zie je in de formule?',
-            uitleg: 'Er staat x² → kwadratisch.' }
+          { label: 'a',
+            vraag: 'Uit hoeveel onderdelen bestaat de totale oppervlakte van een DICHTE cilinder (met bodem én deksel)? Typ een cijfer.',
+            antwoord: '3',
+            hint: 'Een mantel (zijwand) + onderkant + bovenkant.',
+            uitleg: '3 onderdelen: mantel + 2 cirkels (boven en onder).' },
+          { label: 'b',
+            vraag: 'Als je de mantel (zijwand) van een cilinder openknipt en plat legt, welke vorm krijg je dan?',
+            antwoord: 'rechthoek', alts: ['rechthoek','Rechthoek','RECHTHOEK'],
+            hint: 'Geen ronde vorm, maar een gewone 4-hoek met rechte hoeken.',
+            uitleg: 'Een rechthoek. Lengte = omtrek van de cirkel, breedte = hoogte van de cilinder.' },
+          { label: 'c',
+            vraag: 'De lengte van die rechthoek is gelijk aan een speciale lengte van de cirkel. Welke?',
+            antwoord: 'omtrek', alts: ['omtrek','Omtrek','OMTREK','de omtrek'],
+            hint: 'De wand "loopt rond" de cirkel, dus de lengte komt overeen met wat je in één rondje aflegt.',
+            uitleg: 'De lengte van de mantel-rechthoek = de omtrek van de cirkel.' },
+          { label: 'd',
+            vraag: 'Vul aan: mantel = ... × hoogte. (1 woord)',
+            antwoord: 'omtrek', alts: ['omtrek','Omtrek','omtrek bodem','omtrek cirkel'],
+            hint: 'De mantel is een rechthoek. Oppervlakte rechthoek = lengte × breedte. Lengte = ?, breedte = hoogte.',
+            uitleg: 'mantel = omtrek × hoogte. En omtrek = diameter × π.' }
         ]
       },
       {
-        titel: 'Opgave 2 - Drie grafieken in het wild',
-        intro: `<p>Hieronder drie grafieken (beschreven in woorden):</p>
-        <p>Grafiek A: een rechte lijn die schuin omhoog gaat.<br>
-        Grafiek B: een U-vormige bocht met laagste punt op de y-as.<br>
-        Grafiek C: een kromme die start in één punt op de x-as en steeds langzamer omhoog gaat.</p>`,
+        titel: 'Opgave 2 - Een blik kattenvoer',
+        intro: `<p>Een blik kattenvoer heeft een diameter van 10 cm en een hoogte van 6 cm. Het blik is helemaal dicht (bodem én deksel).</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 180" style="max-width:200px;width:100%;height:auto;">
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="#dbeafe" stroke="#1d4ed8" stroke-width="2"/>
+  <path d="M 50 30 L 50 150 A 50 15 0 0 0 150 150 L 150 30" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="none" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="170" y1="30" x2="170" y2="150" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="178" y="95" font-size="11" fill="#5b21b6">h = 6 cm</text>
+  <line x1="50" y1="170" x2="150" y2="170" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="100" y="178" text-anchor="middle" font-size="11" fill="#5b21b6">d = 10 cm</text>
+</svg></div>`,
         sub: [
-          { label: 'a', type: 'mc',
-            vraag: 'Welk verband hoort bij grafiek A (rechte lijn)?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 0,
-            hint: 'Rechte lijn = welke vorm?',
-            uitleg: 'Rechte lijn = lineair verband.' },
-          { label: 'b', type: 'mc',
-            vraag: 'Welk verband hoort bij grafiek B (U-vorm)?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 1,
-            hint: 'Parabool.',
-            uitleg: 'U-vorm (parabool) = kwadratisch verband.' },
-          { label: 'c', type: 'mc',
-            vraag: 'Welk verband hoort bij grafiek C (stijgt langzaam)?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
-            juist: 2,
-            hint: 'Begint op één punt, stijgt steeds trager.',
-            uitleg: 'Steeds langzamer stijgen vanaf een vast punt = wortelverband.' }
+          { label: 'a',
+            vraag: 'Bereken de omtrek van de bodem in cm (π = 3,14) (rond af op 1 decimaal).',
+            antwoord: '31,4', alts: ['31,4','31.4'],
+            hint: 'Gebruik omtrek = diameter × π.',
+            uitleg: '10 × 3,14 = 31,4 cm.' },
+          { label: 'b',
+            vraag: 'Bereken nu de oppervlakte van de mantel in cm² (rond af op 1 decimaal).',
+            antwoord: '188,4', alts: ['188,4','188.4'],
+            hint: 'mantel = omtrek × hoogte. Gebruik het antwoord van vraag a × de hoogte (6).',
+            uitleg: '31,4 × 6 = 188,4 cm².' },
+          { label: 'c',
+            vraag: 'Bereken de oppervlakte van ÉÉN cirkel (de bodem of deksel) in cm². Straal = 5 (rond af op 1 decimaal).',
+            antwoord: '78,5', alts: ['78,5','78.5'],
+            hint: 'oppervlakte cirkel = straal × straal × π.',
+            uitleg: '5 × 5 × 3,14 = 78,5 cm².' },
+          { label: 'd',
+            vraag: 'Bereken de totale oppervlakte van het hele blik in cm². Tel mantel + 2 × cirkel op (rond af op 1 decimaal).',
+            antwoord: '345,4', alts: ['345,4','345.4'],
+            hint: 'Mantel (188,4) + 2 × cirkel (78,5).',
+            uitleg: '188,4 + 2 × 78,5 = 188,4 + 157 = 345,4 cm².' }
         ]
       },
       {
-        titel: 'Opgave 3 - Examenvragen mix',
-        intro: `<p>Combinatie van formules en grafieken. Bedenk per vraag goed welk verband het is en waarom.</p>`,
+        titel: 'Opgave 3 - Een open beker',
+        intro: `<p>Marit pakt een glazen drinkbeker. Het is een open cilinder (geen deksel): diameter 6 cm, hoogte 12 cm.</p>
+        <div class="figuur" style="background:white;border:1px solid #e9d5ff;padding:12px;">
+<svg viewBox="0 0 200 180" style="max-width:200px;width:100%;height:auto;">
+  <ellipse cx="100" cy="30" rx="50" ry="15" fill="white" stroke="#1d4ed8" stroke-width="2" stroke-dasharray="4,2"/>
+  <path d="M 50 30 L 50 150 A 50 15 0 0 0 150 150 L 150 30" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <line x1="170" y1="30" x2="170" y2="150" stroke="#7c3aed" stroke-width="1.5"/>
+  <text x="178" y="95" font-size="11" fill="#5b21b6">h = 12 cm</text>
+  <line x1="50" y1="170" x2="150" y2="170" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="100" y="178" text-anchor="middle" font-size="11" fill="#5b21b6">d = 6 cm</text>
+</svg></div>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Hoeveel cirkels tel je mee bij de oppervlakte van een OPEN beker? Typ een cijfer.',
+            antwoord: '1',
+            hint: 'De beker heeft alleen een bodem, geen deksel.',
+            uitleg: 'Maar 1: alleen de bodem. De bovenkant is open.' },
+          { label: 'b',
+            vraag: 'Bereken de mantel in cm² (π = 3,14) (rond af op 2 decimalen).',
+            antwoord: '226,08', alts: ['226,08','226.08'],
+            hint: 'Eerst omtrek (diameter × π = 6 × 3,14), dan × hoogte (12).',
+            uitleg: '6 × 3,14 × 12 = 18,84 × 12 = 226,08 cm².' },
+          { label: 'c',
+            vraag: 'Bereken de oppervlakte van de bodem in cm². Straal = 3 (rond af op 2 decimalen).',
+            antwoord: '28,26', alts: ['28,26','28.26'],
+            hint: 'straal × straal × π.',
+            uitleg: '3 × 3 × 3,14 = 28,26 cm².' },
+          { label: 'd',
+            vraag: 'Bereken de totale buitenkant van de beker in cm² (mantel + 1 bodem) (rond af op 2 decimalen).',
+            antwoord: '254,34', alts: ['254,34','254.34'],
+            hint: 'Mantel (226,08) + bodem (28,26). Niet 2 keer de bodem!',
+            uitleg: '226,08 + 28,26 = 254,34 cm². Slechts 1 cirkel meetellen omdat de beker open is.' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 15, chapter: 'Drill', title: 'Formules uit je hoofd',
+    desc: 'Korte herhaling om de cirkelformules in te slijpen',
+    uitleg: `
+      <div class="leerdoel"><strong>Je traint hier:</strong>
+        <ul>
+          <li>de twee belangrijkste cirkelformules supersnel kunnen opdreunen</li>
+          <li>π = 3,14 onthouden</li>
+          <li>het verschil tussen omtrek en oppervlakte automatisch herkennen</li>
+        </ul>
+      </div>
+      <div class="theorie"><strong>De twee formules die je UIT JE HOOFD MOET KENNEN</strong>
+        <p style="text-align:center;font-size:18px;margin:8px 0;"><span class="formula">omtrek = diameter × π</span></p>
+        <p style="text-align:center;font-size:18px;margin:8px 0;"><span class="formula">oppervlakte = straal × straal × π</span></p>
+        <p style="text-align:center;margin-top:8px;"><span class="formula">π ≈ 3,14</span></p>
+      </div>
+      <div class="tip"><strong>Geheugentruc:</strong>
+        <ul style="margin-left:18px;">
+          <li>OMTREK begint met O, net als "Om de cirkel heen". Daarbij gebruik je de hele Diameter.</li>
+          <li>OPPERVLAKTE = binnenkant. Een vierkant is "zijde × zijde". Een cirkel is "straal × straal" — maar dan keer π.</li>
+        </ul>
+      </div>
+      <div class="fout"><strong>Klassieke fout:</strong> straal × 2 × π is OMTREK (= diameter × π). NIET oppervlakte! Oppervlakte heeft straal × straal (kwadraat).</div>
+    `,
+    opgaven: [
+      {
+        titel: 'Opgave 1 - Formules opnoemen',
+        intro: `<p>Test of je de formules paraat hebt. Antwoord met 1 woord per vraag.</p>`,
+        sub: [
+          { label: 'a',
+            vraag: 'Wat staat op de puntjes? omtrek cirkel = ... × π',
+            antwoord: 'diameter', alts: ['diameter','d','Diameter','DIAMETER'],
+            hint: 'De lijn dwars door het midden, van rand tot rand.',
+            uitleg: 'omtrek = diameter × π.' },
+          { label: 'b',
+            vraag: 'Wat staat op de puntjes? oppervlakte cirkel = ... × ... × π (1 woord, het komt twee keer voor)',
+            antwoord: 'straal', alts: ['straal','r','Straal','STRAAL'],
+            hint: 'De halve lijn — van het midden tot de rand.',
+            uitleg: 'oppervlakte = straal × straal × π.' },
+          { label: 'c',
+            vraag: 'Hoeveel is π afgerond op 2 decimalen?',
+            antwoord: '3,14', alts: ['3,14','3.14'],
+            hint: 'De Griekse letter voor 3 komma...',
+            uitleg: 'π ≈ 3,14.' },
+          { label: 'd',
+            vraag: 'Welke EENHEID hoort bij oppervlakte? (bv. cm of cm²?)',
+            antwoord: 'cm²', alts: ['cm²','cm2','cm kwadraat','m²','m2','vierkante cm'],
+            hint: 'Oppervlakte is 2D, dus de eenheid is een lengtemaat tot de tweede macht.',
+            uitleg: 'Oppervlakte heeft altijd een kwadraat-eenheid (cm², m²). Omtrek heeft "gewoon" cm of m.' }
+        ]
+      },
+      {
+        titel: 'Opgave 2 - Welke formule heb je nodig?',
+        intro: `<p>Lees per vraag goed wat er gevraagd wordt en kies of je omtrek of oppervlakte moet uitrekenen.</p>`,
         sub: [
           { label: 'a', type: 'mc',
-            vraag: 'Welke formule is lineair? y = x² + 5, y = 3x + 1, y = √x',
-            opties: ['y = x² + 5', 'y = 3x + 1', 'y = √x'],
-            juist: 1,
-            hint: 'Geen x² en geen wortel.',
-            uitleg: 'y = 3x + 1 is lineair (gewone x).' },
-          { label: 'b', type: 'mc',
-            vraag: 'Welke formule is kwadratisch? y = 4x - 2, y = √(x+1), y = -x² + 3',
-            opties: ['y = 4x - 2', 'y = √(x+1)', 'y = -x² + 3'],
-            juist: 2,
-            hint: 'Met x².',
-            uitleg: 'y = -x² + 3 heeft x² → kwadratisch.' },
-          { label: 'c', type: 'mc',
-            vraag: 'Een tabel heeft steeds dezelfde toename. Welk verband?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
+            vraag: 'Je wilt weten hoeveel kaas je op de RAND van een pizza moet smeren. Welke formule?',
+            opties: ['omtrek = diameter × π', 'oppervlakte = straal × straal × π'],
             juist: 0,
-            hint: 'Steeds gelijke toename.',
-            uitleg: 'Gelijke toenamen = lineair.' },
+            hint: 'De rand is de buitenlijn rondom de cirkel.',
+            uitleg: 'De RAND is de omtrek. Dus omtrek = diameter × π.' },
+          { label: 'b', type: 'mc',
+            vraag: 'Je wilt weten hoeveel pizza-saus je nodig hebt om de hele pizza in te smeren. Welke formule?',
+            opties: ['omtrek = diameter × π', 'oppervlakte = straal × straal × π'],
+            juist: 1,
+            hint: 'De hele pizza = de ruimte op de pizza = ?',
+            uitleg: 'Hele pizza = oppervlakte. Dus straal × straal × π.' },
+          { label: 'c', type: 'mc',
+            vraag: 'Een wiel rolt één keer rond. Hoeveel cm legt het af? Welke formule?',
+            opties: ['omtrek = diameter × π', 'oppervlakte = straal × straal × π'],
+            juist: 0,
+            hint: 'Het wiel rolt LANGS de buitenrand af.',
+            uitleg: 'Eén omwenteling = lengte van omtrek. Dus omtrek = diameter × π.' },
           { label: 'd', type: 'mc',
-            vraag: 'Een grafiek is een omgekeerde U (bergvorm). Welk verband?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'],
+            vraag: 'Een ronde tafel: hoeveel m² tafelkleed heb je nodig? Welke formule?',
+            opties: ['omtrek = diameter × π', 'oppervlakte = straal × straal × π'],
             juist: 1,
-            hint: 'Bergvorm = ook parabool.',
-            uitleg: 'Bergvorm parabool = kwadratisch (met minteken voor x²).' }
+            hint: 'Tafelkleed dekt de hele tafel af.',
+            uitleg: 'Het tafelkleed bedekt de hele oppervlakte van de cirkel.' }
+        ]
+      },
+      {
+        titel: 'Opgave 3 - Foutjager',
+        intro: `<p>Iemand schrijft een formule op. Klopt het, of zit er een fout in?</p>`,
+        sub: [
+          { label: 'a', type: 'mc',
+            vraag: 'Iemand schrijft: "omtrek = straal × π". Klopt dat?',
+            opties: ['Ja, dat klopt', 'Nee, het moet diameter × π zijn', 'Nee, het moet straal × straal × π zijn'],
+            juist: 1,
+            hint: 'Bij omtrek gebruik je de hele lijn dwars door de cirkel, niet de halve.',
+            uitleg: 'omtrek = diameter × π. Of als je per se met straal wilt rekenen: omtrek = 2 × straal × π.' },
+          { label: 'b', type: 'mc',
+            vraag: 'Iemand schrijft: "oppervlakte = diameter × π". Klopt dat?',
+            opties: ['Ja, dat klopt', 'Nee, dat is de OMTREK', 'Nee, het moet straal × π zijn'],
+            juist: 1,
+            hint: 'diameter × π is een veel voorkomende formule, maar voor iets anders dan oppervlakte.',
+            uitleg: 'diameter × π is de OMTREK. De oppervlakte is straal × straal × π.' },
+          { label: 'c', type: 'mc',
+            vraag: 'Iemand zegt: "Bij straal 5 is de oppervlakte 5 × 2 × π = 31,4". Klopt dat?',
+            opties: ['Ja, dat klopt', 'Nee, het moet 5 × 5 × π zijn', 'Nee, het moet 10 × π zijn'],
+            juist: 1,
+            hint: 'Bij oppervlakte vermenigvuldig je straal MET ZICHZELF, niet keer 2.',
+            uitleg: 'Oppervlakte = straal × straal × π = 5 × 5 × 3,14 = 78,5. Niet 5 × 2 × π — dat zou onzin zijn.' },
+          { label: 'd',
+            vraag: 'Voor π gebruik je op het proefwerk: ... (vul aan op 2 decimalen) (rond af op 2 decimalen)',
+            antwoord: '3,14', alts: ['3,14','3.14'],
+            hint: 'Driekommaviertien.',
+            uitleg: 'π ≈ 3,14.' }
         ]
       }
     ]
@@ -1657,187 +1259,90 @@ MODULES.forEach(m => { m.vragen = buildVragen(m.opgaven); });
 // ============================
 const PROEFWERKEN = [
   {
-    id: 1, title: 'Proefwerk 1 - basis', desc: 'Rustige mix om in te komen.',
+    id: 101, title: 'Proefwerk 1 - Cirkels basis', desc: 'Omtrek en oppervlakte van cirkels. Rustige opbouw.',
     opgaven: [
       {
-        titel: 'Opgave 1 - Sneakerkast (3 vragen)',
-        intro: `<p>In een schoenkast staan 4 dozen met <span class="formula">d</span> paar sneakers. Er komen 3 dozen bij en 1 wordt weggehaald.</p>`,
+        titel: 'Opgave 1 - Pizza-avond bij Lina',
+        intro: `<p>Lina heeft pizza-avond. Ze bestelt een pizza met diameter 32 cm.</p>`,
         sub: [
-          { label: 'a', vraag: 'Schrijf het totaal aantal paren in formulevorm: 4d + 3d - 1d. Hoe kort? (antwoord beknopt, geen spaties)',
-            antwoord: '6d', alts: ['6d','6 d'], uitleg: '4+3-1 = 6, dus 6d.' },
-          { label: 'b', vraag: 'In elke doos zitten 8 paar (d = 8). Hoeveel paar staan er totaal?',
-            antwoord: '48', uitleg: '6 × 8 = 48.' },
-          { label: 'c', vraag: 'Schrijf korter: 4a + 7a + 2a',
-            antwoord: '13a', alts: ['13a','13 a'], uitleg: '4+7+2 = 13.' }
+          { label: 'a', vraag: 'Wat is de straal van de pizza? (in cm)', antwoord: '16', hint: 'Straal = diameter : 2.', uitleg: 'straal = 32 : 2 = 16 cm.' },
+          { label: 'b', vraag: 'Bereken de omtrek van de pizza in cm (π = 3,14, rond af op 2 decimalen).', antwoord: '100,48', alts: ['100,48','100.48'], hint: 'omtrek = diameter × π.', uitleg: '32 × 3,14 = 100,48 cm.' },
+          { label: 'c', vraag: 'Bereken de oppervlakte van de pizza in cm² (rond af op 2 decimalen).', antwoord: '803,84', alts: ['803,84','803.84'], hint: 'oppervlakte = straal × straal × π. Gebruik straal = 16.', uitleg: '16 × 16 × 3,14 = 256 × 3,14 = 803,84 cm².' }
         ]
       },
       {
-        titel: 'Opgave 2 - Balansrekenen (3 vragen)',
-        intro: `<p>Verschillende balansjes met zakjes en losse gewichten.</p>`,
+        titel: 'Opgave 2 - Het ronde dienblad',
+        intro: `<p>Een rond dienblad heeft een straal van 25 cm.</p>`,
         sub: [
-          { label: 'a', vraag: 'Los op: 3x + 5 = 20. x = ?',
-            antwoord: '5', uitleg: '3x = 15, x = 5.' },
-          { label: 'b', vraag: 'Los op: 2g + 7 = 19. g = ?',
-            antwoord: '6', uitleg: '2g = 12, g = 6.' },
-          { label: 'c', vraag: 'Los op: 4a + 2 = 2a + 10. a = ?',
-            antwoord: '4', uitleg: '2a + 2 = 10, 2a = 8, a = 4.' }
+          { label: 'a', vraag: 'Wat is de diameter? (in cm)', antwoord: '50', hint: 'Diameter = 2 × straal.', uitleg: '2 × 25 = 50 cm.' },
+          { label: 'b', vraag: 'Bereken de omtrek in cm (rond af op heel getal).', antwoord: '157', hint: 'omtrek = diameter × π.', uitleg: '50 × 3,14 = 157 cm.' },
+          { label: 'c', vraag: 'Bereken de oppervlakte van het dienblad in cm² (rond af op 1 decimaal).', antwoord: '1962,5', alts: ['1962,5','1962.5'], hint: 'straal × straal × π. Eerst 25 × 25.', uitleg: '25 × 25 × 3,14 = 625 × 3,14 = 1962,5 cm².' }
         ]
       }
     ],
     los: [
-      { vraag: 'Bereken: 5²', antwoord: '25', uitleg: '5 × 5 = 25.' },
-      { vraag: 'Bereken: √64', antwoord: '8', uitleg: '8 × 8 = 64.' },
-      { type: 'mc', vraag: 'Welk verband is y = 2x + 3?', opties: ['Lineair', 'Kwadratisch', 'Wortel'], juist: 0, uitleg: 'Geen x², geen wortel → lineair.' },
-      { vraag: 'Omslagpunt: 5m + 10 = 3m + 18. m = ?', antwoord: '4', uitleg: '2m = 8, m = 4.' }
+      { vraag: 'Vul aan: omtrek cirkel = ... × π. (1 woord)', antwoord: 'diameter', alts: ['diameter','d'], uitleg: 'omtrek = diameter × π.' },
+      { vraag: 'Vul aan: oppervlakte cirkel = ... × ... × π. (1 woord)', antwoord: 'straal', alts: ['straal','r'], uitleg: 'oppervlakte = straal × straal × π.' },
+      { vraag: 'Hoeveel is π afgerond op 2 decimalen?', antwoord: '3,14', alts: ['3,14','3.14'], uitleg: 'π ≈ 3,14.' },
+      { vraag: 'Een cirkel heeft diameter 20. Wat is de straal?', antwoord: '10', uitleg: '20 : 2 = 10.' }
     ]
   },
   {
-    id: 2, title: 'Proefwerk 2 - opbouw', desc: 'Iets pittiger. Let op kwadraten met minteken.',
+    id: 102, title: 'Proefwerk 2 - Cilinders', desc: 'Inhoud en oppervlakte van cilinders. Met eenheden!',
     opgaven: [
       {
-        titel: 'Opgave 1 - Hondenkapper (4 vragen)',
-        intro: `<p>Hondenkapper "Pluis" rekent <span class="formula">b = 5 + 0,50a</span> (a = aantal honden, b in euro's).</p>`,
+        titel: 'Opgave 1 - Limonade-fles',
+        intro: `<p>Een limonadeflesje heeft een straal van 4 cm en is 18 cm hoog.</p>`,
         sub: [
-          { label: 'a', vraag: 'Wat is het startgetal?',
-            antwoord: '5', uitleg: 'Het losse getal: 5.' },
-          { label: 'b', vraag: 'Wat is het hellingsgetal?',
-            antwoord: '0,5', alts: ['0,5','0.5','0,50','0.50'], uitleg: 'Getal vóór a: 0,5.' },
-          { label: 'c', vraag: 'Wat kost het bij 10 honden?',
-            antwoord: '10', uitleg: '5 + 0,5 × 10 = 5 + 5 = 10.' },
-          { label: 'd', type: 'mc', vraag: 'Welk verband is dit?',
-            opties: ['Lineair', 'Kwadratisch', 'Wortel'], juist: 0, uitleg: 'Gewone a, geen kwadraat of wortel → lineair.' }
+          { label: 'a', vraag: 'Bereken de oppervlakte van de bodem in cm² (rond af op 2 decimalen).', antwoord: '50,24', alts: ['50,24','50.24'], hint: 'oppervlakte bodem = straal × straal × π.', uitleg: '4 × 4 × 3,14 = 16 × 3,14 = 50,24 cm².' },
+          { label: 'b', vraag: 'Bereken de inhoud van het flesje in cm² (rond af op 2 decimalen).', antwoord: '904,32', alts: ['904,32','904.32'], hint: 'inhoud = oppervlakte bodem × hoogte.', uitleg: '50,24 × 18 = 904,32 cm³.' },
+          { label: 'c', vraag: 'Hoeveel mL is dat? (rond af op heel getal)', antwoord: '904', hint: '1 cm³ = 1 mL.', uitleg: '904,32 mL ≈ 904 mL.' }
         ]
       },
       {
-        titel: 'Opgave 2 - Kwadraten en wortels (3 vragen)',
-        intro: `<p>Reken zorgvuldig. Let op de haakjes!</p>`,
+        titel: 'Opgave 2 - Dichte conservenpot',
+        intro: `<p>Een dichte conservenpot heeft diameter 8 cm en hoogte 14 cm.</p>`,
         sub: [
-          { label: 'a', vraag: 'Bereken: 7²',
-            antwoord: '49', uitleg: '7 × 7 = 49.' },
-          { label: 'b', vraag: 'Bereken: -4²  (geen haakjes!)',
-            antwoord: '-16', uitleg: 'Eerst 4² = 16, dan minteken: -16.' },
-          { label: 'c', vraag: 'Bereken y bij y = x² als x = -5.',
-            antwoord: '25', uitleg: '(-5)² = 25 (min × min = plus).' }
+          { label: 'a', vraag: 'Wat is de straal? (in cm)', antwoord: '4', hint: 'Diameter : 2.', uitleg: '8 : 2 = 4 cm.' },
+          { label: 'b', vraag: 'Bereken de omtrek van de bodem in cm (rond af op 2 decimalen).', antwoord: '25,12', alts: ['25,12','25.12'], hint: 'omtrek = diameter × π.', uitleg: '8 × 3,14 = 25,12 cm.' },
+          { label: 'c', vraag: 'Bereken de mantel in cm² (rond af op 2 decimalen).', antwoord: '351,68', alts: ['351,68','351.68'], hint: 'mantel = omtrek × hoogte.', uitleg: '25,12 × 14 = 351,68 cm².' },
+          { label: 'd', vraag: 'Bereken de totale oppervlakte in cm² (mantel + 2 cirkels, rond af op 2 decimalen).', antwoord: '452,16', alts: ['452,16','452.16'], hint: 'Mantel + 2 × oppervlakte bodem. Bodem = 4 × 4 × 3,14 = 50,24.', uitleg: '351,68 + 2 × 50,24 = 351,68 + 100,48 = 452,16 cm².' }
         ]
       }
     ],
     los: [
-      { vraag: 'Schrijf korter: 6p + 4q - 2p + 3q', antwoord: '4p+7q', alts: ['4p+7q','4p + 7q','7q+4p','7q + 4p'], uitleg: 'p: 6-2 = 4p. q: 4+3 = 7q.' },
-      { vraag: 'Los op: 5x + 3 = 23. x = ?', antwoord: '4', uitleg: '5x = 20, x = 4.' },
-      { type: 'mc', vraag: 'Welk verband is y = √(x - 2)?', opties: ['Lineair', 'Kwadratisch', 'Wortel'], juist: 2, uitleg: 'Letter onder wortelteken.' }
+      { vraag: 'Vul aan: inhoud cilinder = ... × hoogte. (in woorden)', antwoord: 'oppervlakte bodem', alts: ['oppervlakte bodem','oppervlaktebodem','bodem oppervlakte','straal × straal × π','r × r × π'], uitleg: 'inhoud = oppervlakte bodem × hoogte.' },
+      { vraag: 'Hoeveel cm³ is 1 liter?', antwoord: '1000', uitleg: '1 L = 1 dm³ = 1000 cm³.' },
+      { vraag: 'Een cilinder met oppervlakte bodem 30 cm² en hoogte 5 cm. Inhoud in cm³?', antwoord: '150', uitleg: '30 × 5 = 150.' }
     ]
   },
   {
-    id: 3, title: 'Proefwerk 3 - midden', desc: 'Negatieve antwoorden en parabool.',
+    id: 103, title: 'Proefwerk 3 - Alles erop en eraan', desc: 'Mix van cirkels en cilinders. Lees goed!',
     opgaven: [
       {
-        titel: 'Opgave 1 - Twee sportscholen (4 vragen)',
-        intro: `<p>Sportschool A: <span class="formula">k = 25 + 30m</span>. Sportschool B: <span class="formula">k = 75 + 20m</span>. (m = maanden, k = kosten in €)</p>`,
+        titel: 'Opgave 1 - Het ronde zwembad',
+        intro: `<p>In de tuin staat een rond opzetzwembad met diameter 3 meter en een hoogte van 80 cm.</p>`,
         sub: [
-          { label: 'a', vraag: 'Stel de vergelijking op om het omslagpunt te vinden. (antwoord beknopt, geen spaties)',
-            antwoord: '25+30m=75+20m', alts: ['25+30m=75+20m','25 + 30m = 75 + 20m'], uitleg: 'A = B.' },
-          { label: 'b', vraag: 'Los op. m = ?',
-            antwoord: '5', uitleg: '25+30m = 75+20m → 10m = 50 → m = 5.' },
-          { label: 'c', vraag: 'Hoeveel kost het dan? Vul m = 5 in bij A (25 + 30m).',
-            antwoord: '175', uitleg: '25 + 30 × 5 = 25 + 150 = 175.' },
-          { label: 'd', type: 'mc', vraag: 'Welke sportschool is goedkoper bij 10 maanden?',
-            opties: ['Sportschool A', 'Sportschool B', 'Even duur'], juist: 1, uitleg: 'Bij m=10: A = 25+300 = 325, B = 75+200 = 275. B is goedkoper.' }
+          { label: 'a', vraag: 'Reken de hoogte om naar meter. (in m)', antwoord: '0,8', alts: ['0,8','0.8'], hint: '1 m = 100 cm.', uitleg: '80 cm = 0,8 m.' },
+          { label: 'b', vraag: 'Bereken de oppervlakte van de bodem in m² (straal = 1,5 m, rond af op 4 decimalen).', antwoord: '7,065', alts: ['7,065','7.065','7,07','7.07'], hint: 'straal × straal × π. 1,5 × 1,5 = 2,25.', uitleg: '1,5 × 1,5 × 3,14 = 2,25 × 3,14 = 7,065 m².' },
+          { label: 'c', vraag: 'Bereken de inhoud van het zwembad in m³ (rond af op 2 decimalen).', antwoord: '5,65', alts: ['5,65','5.65','5,652','5.652'], hint: 'oppervlakte bodem × hoogte (in meter!).', uitleg: '7,065 × 0,8 = 5,652 m³ ≈ 5,65 m³.' },
+          { label: 'd', vraag: 'Hoeveel liter water past erin? (rond af op heel getal). Tip: 1 m³ = 1000 L.', antwoord: '5652', alts: ['5652','5650'], hint: 'Vermenigvuldig m³ met 1000.', uitleg: '5,652 × 1000 = 5652 L.' }
         ]
       },
       {
-        titel: 'Opgave 2 - Wortels en kwadraten (3 vragen)',
-        intro: `<p>Mix van kwadraten en wortels.</p>`,
+        titel: 'Opgave 2 - Cirkel-omslagpunt',
+        intro: `<p>Twee ronde tafels: tafel A heeft diameter 80 cm, tafel B heeft straal 50 cm.</p>`,
         sub: [
-          { label: 'a', vraag: 'Bereken: √81',
-            antwoord: '9', uitleg: '9 × 9 = 81.' },
-          { label: 'b', vraag: 'Bereken: (-6)²',
-            antwoord: '36', uitleg: '-6 × -6 = 36.' },
-          { label: 'c', vraag: 'Bereken y bij y = 0,5x² als x = 4.',
-            antwoord: '8', uitleg: '4² = 16, 0,5 × 16 = 8.' }
+          { label: 'a', vraag: 'Wat is de diameter van tafel B? (in cm)', antwoord: '100', hint: 'Diameter = 2 × straal.', uitleg: '2 × 50 = 100 cm.' },
+          { label: 'b', vraag: 'Welke tafel heeft de grotere oppervlakte? Typ "A" of "B".', antwoord: 'B', alts: ['B','b'], hint: 'Vergelijk de stralen. Grotere straal = grotere oppervlakte.', uitleg: 'Tafel A heeft straal 40, B heeft straal 50. B is groter.' },
+          { label: 'c', vraag: 'Bereken het verschil in oppervlakte tussen B en A in cm² (rond af op heel getal).', antwoord: '2826', hint: 'Bereken beide oppervlakten en trek af. A: 40 × 40 × π. B: 50 × 50 × π.', uitleg: 'A = 40 × 40 × 3,14 = 5024. B = 50 × 50 × 3,14 = 7850. Verschil = 7850 − 5024 = 2826 cm².' }
         ]
       }
     ],
     los: [
-      { vraag: 'Los op: 6p + 9 = 4p + 21. p = ?', antwoord: '6', uitleg: '2p + 9 = 21, 2p = 12, p = 6.' },
-      { vraag: 'Los op: 3y + 14 = 8y - 11. y = ?', antwoord: '5', uitleg: '14 = 5y - 11, 25 = 5y, y = 5.' },
-      { vraag: 'Bereken y bij y = √(x + 7) als x = 2.', antwoord: '3', uitleg: '2+7 = 9, √9 = 3.' }
-    ]
-  },
-  {
-    id: 4, title: 'Proefwerk 4 - pittig', desc: 'Diepere vragen. Let goed op signaalwoorden.',
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Glazenwassers (4 vragen)',
-        intro: `<p>Twee glazenwassers gebruiken formules:<br>
-        Bram: <span class="formula">e = 25 + 30u</span><br>
-        Carel: <span class="formula">e = 10 + 35u</span><br>
-        Hierin is u = aantal uren werk, e in euro's.</p>`,
-        sub: [
-          { label: 'a', vraag: 'Stel de vergelijking op voor het omslagpunt. (antwoord beknopt, geen spaties)',
-            antwoord: '25+30u=10+35u', alts: ['25+30u=10+35u','25 + 30u = 10 + 35u'], uitleg: 'Bram = Carel.' },
-          { label: 'b', vraag: 'Los op. u = ?',
-            antwoord: '3', uitleg: '15 = 5u → u = 3.' },
-          { label: 'c', vraag: 'Hoeveel kost het dan? Vul u = 3 in bij Bram.',
-            antwoord: '115', uitleg: '25 + 30 × 3 = 25 + 90 = 115.' },
-          { label: 'd', type: 'mc', vraag: 'Wie is goedkoper bij 1 uur werk?',
-            opties: ['Bram', 'Carel', 'Even duur'], juist: 1, uitleg: 'Bij u=1: Bram = 55, Carel = 45. Carel goedkoper.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Parabool herkennen (3 vragen)',
-        intro: `<p>Reken zorgvuldig met de kwadratische formule <span class="formula">y = -x² + 10</span>.</p>`,
-        sub: [
-          { label: 'a', vraag: 'Bereken y als x = 3.',
-            antwoord: '1', uitleg: '3² = 9, -9 + 10 = 1.' },
-          { label: 'b', vraag: 'Bereken y als x = 0.',
-            antwoord: '10', uitleg: '0² = 0, -0 + 10 = 10.' },
-          { label: 'c', vraag: 'Bereken y als x = -2.',
-            antwoord: '6', uitleg: '(-2)² = 4, -4 + 10 = 6.' }
-        ]
-      }
-    ],
-    los: [
-      { vraag: 'Los op: 2x + 7 = 5x - 8. x = ?', antwoord: '5', uitleg: '7 = 3x - 8, 15 = 3x, x = 5.' },
-      { vraag: 'Wat is het kleinste getal voor t in y = √(t - 6)?', antwoord: '6', uitleg: 't - 6 ≥ 0, dus t ≥ 6.' },
-      { vraag: 'Los op: 5b + 22 = -b + 4. b = ?', antwoord: '-3', uitleg: '+b: 6b + 22 = 4, 6b = -18, b = -3.' }
-    ]
-  },
-  {
-    id: 5, title: 'Proefwerk 5 - uitdagend', desc: 'Alles erop en eraan. Extra check.',
-    opgaven: [
-      {
-        titel: 'Opgave 1 - Sneeuwhoogte (4 vragen)',
-        intro: `<p>Op een berg ligt aan het begin van de dag 80 cm sneeuw. Elke dag smelt er 4 cm weg.</p>
-        <table><tr><th>dag (d)</th><td>0</td><td>1</td><td>2</td><td>3</td><td>5</td></tr>
-        <tr><th>hoogte (h)</th><td>80</td><td>76</td><td>72</td><td>68</td><td>60</td></tr></table>`,
-        sub: [
-          { label: 'a', vraag: 'Wat is het startgetal?',
-            antwoord: '80', uitleg: 'Bij d = 0 is h = 80.' },
-          { label: 'b', vraag: 'Wat is het hellingsgetal? (let op het teken)',
-            antwoord: '-4', uitleg: 'Hoogte neemt af met 4 per dag → -4.' },
-          { label: 'c', vraag: 'Wat is de formule? (antwoord beknopt, geen spaties)',
-            antwoord: 'h=-4d+80', alts: ['h=-4d+80','h = -4d + 80','-4d+80','h=80-4d','h = 80 - 4d'], uitleg: 'h = -4d + 80 (of 80 - 4d).' },
-          { label: 'd', vraag: 'Op welke dag is alle sneeuw weg? (h = 0)',
-            antwoord: '20', uitleg: '0 = -4d + 80 → 4d = 80 → d = 20.' }
-        ]
-      },
-      {
-        titel: 'Opgave 2 - Wortelverband (3 vragen)',
-        intro: `<p>Gegeven: <span class="formula">y = √(2x + 1)</span>. Eerst onder de wortel uitrekenen.</p>`,
-        sub: [
-          { label: 'a', vraag: 'Bereken y als x = 0.',
-            antwoord: '1', uitleg: '0 + 1 = 1, √1 = 1.' },
-          { label: 'b', vraag: 'Bereken y als x = 4.',
-            antwoord: '3', uitleg: '8 + 1 = 9, √9 = 3.' },
-          { label: 'c', vraag: 'Bereken y als x = 12.',
-            antwoord: '5', uitleg: '24 + 1 = 25, √25 = 5.' }
-        ]
-      }
-    ],
-    los: [
-      { vraag: 'Los op: 8a + 15 = 3a - 10. a = ?', antwoord: '-5', uitleg: '5a + 15 = -10, 5a = -25, a = -5.' },
-      { vraag: 'Bereken: -8²  (geen haakjes!)', antwoord: '-64', uitleg: 'Eerst 8² = 64, dan minteken.' },
-      { type: 'mc', vraag: 'Welke formule is kwadratisch?', opties: ['y = 4x', 'y = x² + 7', 'y = √x'], juist: 1, uitleg: 'x² → kwadratisch.' }
+      { vraag: 'Een cirkel heeft straal 6. Oppervlakte in cm² (π = 3,14, rond af op 2 decimalen).', antwoord: '113,04', alts: ['113,04','113.04'], uitleg: '6 × 6 × 3,14 = 113,04.' },
+      { vraag: 'Een cirkel heeft diameter 14. Omtrek in cm (rond af op 2 decimalen).', antwoord: '43,96', alts: ['43,96','43.96'], uitleg: '14 × 3,14 = 43,96.' },
+      { vraag: 'Een cilinder: straal 5, hoogte 10. Inhoud in cm³ (rond af op 1 decimaal).', antwoord: '785', alts: ['785','785,0','785.0'], uitleg: '5 × 5 × 3,14 × 10 = 78,5 × 10 = 785.' }
     ]
   }
 ];
@@ -1870,6 +1375,27 @@ PROEFWERKEN.forEach(t => {
 // ============================
 const STORAGE_KEY = 'wiskunde_trainer_v3';
 
+// =====================================================
+// 🎉 VIERINGS-CONFIG — pas deze waarden aan naar wens!
+// =====================================================
+const VIERING_CONFIG = {
+  // Vanaf welk cijfer toon je het vuurwerk? (5.5 = voldoende)
+  drempel: 5.5,
+  // Emojis/foto (geldt voor alle proefwerken)
+  emoji: '🎉🏆🎊',
+  foto_url: '',  // bv. 'https://i.imgur.com/abc123.jpg' (maak emoji dan leeg)
+  // PER PROEFWERK een eigen uitroep + ondertekst:
+  per_proefwerk: {
+    101: { titel: 'SCUBBBAAAAAAA !!',   tekst: '' },
+    102: { titel: 'GOED ZO POEPSLAAF',  tekst: '' },
+    103: { titel: 'LEKKER BEZIG EMMIE', tekst: '' }
+  },
+  // Fallback als er een nieuwer proefwerk bijkomt:
+  default_titel: 'GEHAALD!',
+  default_tekst: ''
+};
+// =====================================================
+
 function loadState() {
   try {
     const s = localStorage.getItem(STORAGE_KEY);
@@ -1895,10 +1421,21 @@ function normalize(s) {
 }
 function checkAnswer(input, vraag) {
   const norm = normalize(input);
+  // Exacte match
   if (vraag.alts && vraag.alts.length) {
-    return vraag.alts.some(a => normalize(a) === norm);
+    if (vraag.alts.some(a => normalize(a) === norm)) return true;
+  } else if (normalize(vraag.antwoord) === norm) {
+    return true;
   }
-  return normalize(vraag.antwoord) === norm;
+  // Numerieke match met tolerantie (voor afrondingsverschillen)
+  const userNum = parseFloat(norm.replace('-','-').replace(',','.'));
+  const expectedNum = parseFloat(normalize(vraag.antwoord).replace(',','.'));
+  if (!isNaN(userNum) && !isNaN(expectedNum)) {
+    // Tolerantie: 0.05 (vangt verschillen door π=3,14 vs 3,1416)
+    const diff = Math.abs(userNum - expectedNum);
+    if (diff <= 0.05) return true;
+  }
+  return false;
 }
 function getModuleProgress(mId) {
   const s = state.moduleScores[mId] || {};
@@ -2177,10 +1714,52 @@ function renderTestResult() {
     </div>`;
   });
   html += `<div class="btn-row">
-    <button class="btn" data-action="retakeTest">Probeer opnieuw</button>
+    <button class="btn" data-action="retakeTest">Probeer opnieuw</button></button>
     <button class="btn btn-secondary" data-action="home">Terug naar overzicht</button>
   </div></div>`;
+  if (grade >= VIERING_CONFIG.drempel && !view.vieringGesloten) {
+    html += renderVuurwerk(grade);
+  }
   return html;
+}
+
+function renderVuurwerk(grade) {
+  function sparks(idx) {
+    let s = '';
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2;
+      const dx = Math.cos(angle) * 80;
+      const dy = Math.sin(angle) * 80;
+      s += `<span style="--dx:${dx}px;--dy:${dy}px;animation-delay:${idx*0.4}s"></span>`;
+    }
+    return s;
+  }
+  // Pak per-proefwerk tekst, of fallback
+  const pw = VIERING_CONFIG.per_proefwerk && VIERING_CONFIG.per_proefwerk[view.testId];
+  const titel = pw ? pw.titel : VIERING_CONFIG.default_titel;
+  const tekst = pw ? pw.tekst : VIERING_CONFIG.default_tekst;
+  let fotoHtml = '';
+  if (VIERING_CONFIG.foto_url && VIERING_CONFIG.foto_url.trim()) {
+    fotoHtml = `<img src="${escapeHtml(VIERING_CONFIG.foto_url)}" alt="Viering">`;
+  } else if (VIERING_CONFIG.emoji) {
+    fotoHtml = escapeHtml(VIERING_CONFIG.emoji);
+  }
+  return `
+    <div class="viering-overlay" data-action="sluitViering">
+      <div class="vuurwerk vw1">${sparks(0)}</div>
+      <div class="vuurwerk vw2">${sparks(1)}</div>
+      <div class="vuurwerk vw3">${sparks(2)}</div>
+      <div class="vuurwerk vw4">${sparks(3)}</div>
+      <div class="vuurwerk vw5">${sparks(4)}</div>
+      <div class="viering-card" onclick="event.stopPropagation()">
+        <h1>${escapeHtml(titel)}</h1>
+        <div class="cijfer-display">${grade}</div>
+        ${fotoHtml ? `<div class="foto-plek">${fotoHtml}</div>` : ''}
+        ${tekst ? `<div class="tekst">${escapeHtml(tekst)}</div>` : ''}
+        <button class="sluit-btn" data-action="sluitViering">Sluiten</button>
+      </div>
+    </div>
+  `;
 }
 
 function attachListeners() {
@@ -2220,7 +1799,8 @@ function handleClick(e) {
   else if (a === 'selectMC') { view.selected = Number(e.currentTarget.dataset.idx); render(); }
   else if (a === 'testMC') { view.testInputs[Number(e.currentTarget.dataset.q)] = e.currentTarget.dataset.i; render(); }
   else if (a === 'submitTest') submitTest();
-  else if (a === 'retakeTest') openTest(view.testId);
+  else if (a === 'retakeTest') { view.vieringGesloten = false; openTest(view.testId); }
+  else if (a === 'sluitViering') { view.vieringGesloten = true; render(); }
   else if (a === 'reset') doReset();
 }
 
@@ -2243,6 +1823,7 @@ function openTest(id) {
   view.screen = 'test';
   view.testId = id;
   view.testInputs = {};
+  view.vieringGesloten = false;
   render();
 }
 function doCheck() {
@@ -2295,6 +1876,7 @@ function submitTest() {
   });
   state.testScores[t.id] = score;
   saveState();
+  view.vieringGesloten = false;
   view.screen = 'testResult';
   render();
 }
